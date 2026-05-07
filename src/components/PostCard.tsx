@@ -5,7 +5,16 @@
 import { useState } from 'react';
 import type { Post } from '../services/postService';
 import * as postService from '../services/postService';
+import { Link } from 'react-router-dom';
 
+// Dans le return, enveloppe le contenu :
+return (
+  <Link to={`/post/${post.id}`} className="block">
+    <div className="...">
+      {/* Tout le contenu existant */}
+    </div>
+  </Link>
+);
 interface PostCardProps {
   post: Post;
 }
