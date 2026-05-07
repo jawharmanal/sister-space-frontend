@@ -186,7 +186,7 @@ export default function AdminPage() {
             </div>
 
             {/* Actions (uniquement pour les EN_ATTENTE) */}
-            {(u.statut === 'EN_ATTENTE' || u.statut === 'en_attente' || u.statut?.toUpperCase() === 'EN_ATTENTE') && (
+            {u.statut === 'EN_ATTENTE' && (
               <div className="flex gap-2 mt-3 pt-3 border-t border-pink-50">
                 <button
                   onClick={() => handleValider(u.id, u.prenom)}
