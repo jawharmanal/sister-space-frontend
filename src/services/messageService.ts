@@ -57,3 +57,8 @@ export const demarrerConversation = async (id_destinataire: number) => {
   const response = await api.post('/conversations', { id_destinataire });
   return response.data.data; // { id, deja_existante }
 };
+// Compter les messages non lus
+export const compterMessagesNonLus = async (): Promise<number> => {
+  const response = await api.get('/conversations/non-lus');
+  return response.data.data.nb_total;
+};
