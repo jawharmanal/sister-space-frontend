@@ -3,18 +3,10 @@
 // ============================================================================
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { Post } from '../services/postService';
 import * as postService from '../services/postService';
-import { Link } from 'react-router-dom';
 
-// Dans le return, enveloppe le contenu :
-return (
-  <Link to={`/post/${post.id}`} className="block">
-    <div className="...">
-      {/* Tout le contenu existant */}
-    </div>
-  </Link>
-);
 interface PostCardProps {
   post: Post;
 }
@@ -41,7 +33,11 @@ export default function PostCard({ post }: PostCardProps) {
     return date.toLocaleDateString('fr-FR');
   };
 
-  const handleLike = async () => {
+  const handleLike = async (e: React.MouseEvent) => {
+    // Empêcher le clic du like de déclencher la navigation vers /post/:id
+    e.preventDefault();
+    e.stopPropagation();
+    
     try {
       if (estLike) {
         await postService.unlikerPost(post.id);
@@ -58,44 +54,49 @@ export default function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5 mb-4 border border-pink-100">
-      
-      {/* En-tête : avatar + prénom + date */}
-      <div className="flex items-center gap-3 mb-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sister-300 to-sister-500 flex items-center justify-center text-white font-bold">
-          {initiale}
-        </div>
-        <div className="flex-1">
-          <div className="font-semibold text-gray-800">{post.auteure_prenom}</div>
-          <div className="text-xs text-gray-400">{formaterDate(post.date_creation)}</div>
-        </div>
-      </div>
-
-      {/* Contenu du post */}
-      <p className="text-gray-700 leading-relaxed mb-3">{post.contenu}</p>
-
-      {/* Photos (si présentes) */}
-      {post.photos_urls && post.photos_urls.length > 0 && (
-        <div className="bg-pink-50 rounded-xl p-8 mb-3 text-center text-pink-300 text-sm">
-          📷 {post.photos_urls.length} photo(s)
-        </div>
-      )}
-
-      {/* Actions : like + commentaire */}
-      <div className="flex items-center gap-4 pt-2 border-t border-pink-50">
-        <button
-          onClick={handleLike}
-          className="flex items-center gap-1 text-gray-500 hover:text-sister-500 transition"
-        >
-          <span className="text-lg">{estLike ? '❤️' : '🤍'}</span>
-          <span className="text-sm font-medium">{nbLikes}</span>
-        </button>
+    <Link to={`/post/${post.id}`} className="block">
+      <div className="bg-white rounded-2xl shadow-sm p-5 mb-4 border border-pink-100 hover:shadow-md transition">
         
-        <button className="flex items-center gap-1 text-gray-500 hover:text-sister-500 transition">
-          <span className="text-lg">💬</span>
-          <span className="text-sm font-medium">{post.nb_commentaires}</span>
-        </button>
+        {/* En-tête : avatar + prénom + date */}
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sister-300 to-sister-500 flex items-center justify-center text-white font-bold">
+            {initiale}
+          </div>
+          <div className="flex-1">
+            <div className="font-semibold text-gray-800">{post.auteure_prenom}</div>
+            <div className="text-xs text-gray-400">{formaterDate(post.date_creation)}</div>
+          </div>
+        </div>
+
+        {/* Contenu du post */}
+        <p className="text-gray-700 leading-relaxed mb-3">{post.contenu}</p>
+
+        {/* Photos (si présentes) */}
+        {post.photos_urls && post.photos_urls.length > 0 && (
+          <div className="bg-pink-50 rounded-xl p-8 mb-3 text-center text-pink-300 text-sm">
+            📷 {post.photos_urls.length} photo(s)
+          </div>
+        )}
+
+        {/* Actions : like + commentaire */}
+        <div className="flex items-center gap-4 pt-2 border-t border-pink-50">
+          <button
+            onClick={handleLike}
+            className="flex items-center gap-1 text-gray-500 hover:text-sister-500 transition"
+          >
+            <span className="text-lg">{estLike ? '❤️' : '🤍'}</span>
+            <span className="text-sm font-medium">{nbLikes}</span>
+          </button>
+          
+          <button 
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-1 text-gray-500 hover:text-sister-500 transition"
+          >
+            <span className="text-lg">💬</span>
+            <span className="text-sm font-medium">{post.nb_commentaires}</span>
+          </button>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }
