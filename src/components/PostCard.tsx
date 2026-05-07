@@ -73,10 +73,14 @@ export default function PostCard({ post }: PostCardProps) {
 
         {/* Photos (si présentes) */}
         {post.photos_urls && post.photos_urls.length > 0 && (
-          <div className="bg-pink-50 rounded-xl p-8 mb-3 text-center text-pink-300 text-sm">
-            📷 {post.photos_urls.length} photo(s)
+          <div className="rounded-xl overflow-hidden mb-3">
+            <img 
+              src={post.photos_urls[0]} 
+              alt="Post" 
+              className="w-full max-h-96 object-cover"
+            />
           </div>
-        )}
+       )}
 
         {/* Actions : like + commentaire */}
         <div className="flex items-center gap-4 pt-2 border-t border-pink-50">

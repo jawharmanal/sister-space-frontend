@@ -1,11 +1,12 @@
 // ============================================================================
-// SISTER SPACE — Page Création d'un post
+// SISTER SPACE — Page Création d'un post (avec upload d'image Cloudinary)
 // ============================================================================
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import * as authService from '../services/authService';
+import { uploadImage } from '../services/uploadService';
 
 const TAGS_DISPONIBLES = [
   { id: 1, nom: 'Advice', emoji: '💡' },
@@ -17,11 +18,17 @@ const TAGS_DISPONIBLES = [
 export default function CreerPostPage() {
   const navigate = useNavigate();
   const utilisatrice = authService.getUtilisatriceConnectee();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [contenu, setContenu] = useState('');
   const [tagsSelectionnes, setTagsSelectionnes] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
   const [erreur, setErreur] = useState('');
+  
+  // États pour la photo
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoApercu, setPhotoApercu] = useState<string>('');
+  const [uploadEnCours, setUploadEnCours] = useState(false);
 
   // Toggle un tag dans la sélection
   const toggleTag = (id: number) => {
@@ -30,6 +37,39 @@ export default function CreerPostPage() {
     } else {
       setTagsSelectionnes([...tagsSelectionnes, id]);
     }
+  };
+
+  // Quand l'utilisatrice sélectionne une image
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Vérification taille (max 5 Mo)
+    if (file.size > 5 * 1024 * 1024) {
+      setErreur('Image trop lourde (max 5 Mo)');
+      return;
+    }
+
+    // Vérification type
+    if (!file.type.startsWith('image/')) {
+      setErreur('Le fichier doit être une image');
+      return;
+    }
+
+    setErreur('');
+    setPhotoFile(file);
+    
+    // Aperçu local
+    const reader = new FileReader();
+    reader.onload = () => setPhotoApercu(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  // Retirer la photo sélectionnée
+  const retirerPhoto = () => {
+    setPhotoFile(null);
+    setPhotoApercu('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,12 +83,33 @@ export default function CreerPostPage() {
 
     setLoading(true);
     try {
-      await api.post('/posts', { contenu });
+      // 1. Si une photo est sélectionnée, l'uploader d'abord
+      let photos_urls: string[] = [];
+      if (photoFile) {
+        setUploadEnCours(true);
+        const url = await uploadImage(photoFile);
+        photos_urls.push(url);
+        setUploadEnCours(false);
+      }
+
+      // 2. Créer le post avec l'URL de la photo
+      await api.post('/posts', { 
+        contenu,
+        photos_urls: photos_urls.length > 0 ? photos_urls : undefined,
+      });
+      
       navigate('/feed'); // Retour au fil après publication
     } catch (err: any) {
-      setErreur(err.response?.data?.message || 'Erreur lors de la publication');
+      if (err.message === 'IMAGE_TROP_LOURDE') {
+        setErreur('Image trop lourde (max 5 Mo)');
+      } else if (err.message === 'UPLOAD_ECHEC') {
+        setErreur('Échec de l\'upload de l\'image');
+      } else {
+        setErreur(err.response?.data?.message || 'Erreur lors de la publication');
+      }
     } finally {
       setLoading(false);
+      setUploadEnCours(false);
     }
   };
 
@@ -67,7 +128,7 @@ export default function CreerPostPage() {
             disabled={loading || !contenu.trim()}
             className="bg-sister-500 hover:bg-sister-600 disabled:opacity-40 text-white px-5 py-1.5 rounded-full text-sm font-semibold transition"
           >
-            {loading ? '...' : 'Post'}
+            {uploadEnCours ? 'Upload...' : loading ? '...' : 'Post'}
           </button>
         </div>
       </header>
@@ -102,12 +163,42 @@ export default function CreerPostPage() {
             {contenu.length} / 500
           </div>
 
-          {/* Zone "ajouter une photo" (placeholder pour l'instant) */}
-          <div className="bg-pink-50 border-2 border-dashed border-pink-200 rounded-2xl py-8 text-center text-pink-400">
-            <div className="text-3xl mb-2">📷</div>
-            <div className="text-sm font-medium">Add a photo</div>
-            <div className="text-xs">Optional · up to 4 images</div>
-          </div>
+          {/* Zone d'upload de photo */}
+          {!photoApercu ? (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full bg-pink-50 border-2 border-dashed border-pink-200 rounded-2xl py-8 text-center text-pink-400 hover:bg-pink-100 hover:border-sister-300 transition cursor-pointer"
+            >
+              <div className="text-3xl mb-2">📷</div>
+              <div className="text-sm font-medium">Ajouter une photo</div>
+              <div className="text-xs">Optionnel · max 5 Mo</div>
+            </button>
+          ) : (
+            <div className="relative rounded-2xl overflow-hidden">
+              <img 
+                src={photoApercu} 
+                alt="Aperçu" 
+                className="w-full max-h-96 object-cover"
+              />
+              <button
+                type="button"
+                onClick={retirerPhoto}
+                className="absolute top-3 right-3 bg-black bg-opacity-60 hover:bg-opacity-80 text-white w-9 h-9 rounded-full flex items-center justify-center text-lg transition"
+                title="Retirer la photo"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoChange}
+            className="hidden"
+          />
 
           {/* Tags */}
           <div>
