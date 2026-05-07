@@ -9,6 +9,7 @@ import MessagesPage from './pages/MessagesPage';
 import ConversationPage from './pages/ConversationPage';
 import ExplorePage from './pages/ExplorePage';
 import CategoriePage from './pages/CategoriePage';
+import PostDetailPage from './pages/PostDetailPage';
 // Composant pour protéger les routes
 function RouteProtegee({ children }: { children: React.ReactNode }) {
   return estConnectee() ? <>{children}</> : <Navigate to="/login" />;
@@ -55,6 +56,10 @@ function App() {
         <Route 
           path="/categorie/:id" 
           element={<RouteProtegee><CategoriePage /></RouteProtegee>} 
+        />
+        <Route 
+          path="/post/:id" 
+          element={<RouteProtegee><PostDetailPage /></RouteProtegee>} 
         />
       </Routes>
     </BrowserRouter>
