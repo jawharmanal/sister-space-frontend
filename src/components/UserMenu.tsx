@@ -78,12 +78,12 @@ export default function UserMenu() {
 
             {utilisatrice.role === 'ADMIN' && (
               <button
-                onClick={() => { setOuvert(false); alert('Dashboard admin à venir 🌸'); }}
+                onClick={() => { setOuvert(false); navigate('/admin'); }}
                 className="w-full text-left px-4 py-2 hover:bg-pink-50 text-sm text-sister-600 font-medium transition flex items-center gap-2"
               >
-                👮 Admin
+               👮 Admin
               </button>
-            )}
+             )}
 
             <div className="border-t border-pink-100 my-1"></div>
 

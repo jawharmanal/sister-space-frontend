@@ -14,7 +14,18 @@ import PostDetailPage from './pages/PostDetailPage';
 function RouteProtegee({ children }: { children: React.ReactNode }) {
   return estConnectee() ? <>{children}</> : <Navigate to="/login" />;
 }
-
+function RouteAdmin({ children }: { children: React.ReactNode }) {
+  const utilisatrice = authService.getUtilisatriceConnectee();
+  
+  // Pas connectée → redirige vers login
+  if (!utilisatrice) return <Navigate to="/login" />;
+  
+  // Connectée mais pas ADMIN → redirige vers feed
+  if (utilisatrice.role !== 'ADMIN') return <Navigate to="/feed" />;
+  
+  // ADMIN → autorise l'accès
+  return <>{children}</>;
+}
 function App() {
   return (
     <BrowserRouter>
@@ -60,6 +71,10 @@ function App() {
         <Route 
           path="/post/:id" 
           element={<RouteProtegee><PostDetailPage /></RouteProtegee>} 
+        />
+        <Route 
+          path="/admin" 
+          element={<RouteAdmin><AdminPage /></RouteAdmin>} 
         />
       </Routes>
     </BrowserRouter>
