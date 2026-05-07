@@ -10,6 +10,8 @@ import ConversationPage from './pages/ConversationPage';
 import ExplorePage from './pages/ExplorePage';
 import CategoriePage from './pages/CategoriePage';
 import PostDetailPage from './pages/PostDetailPage';
+import * as authService from './services/authService';
+import AdminPage from './pages/AdminPage';
 // Composant pour protéger les routes
 function RouteProtegee({ children }: { children: React.ReactNode }) {
   return estConnectee() ? <>{children}</> : <Navigate to="/login" />;
