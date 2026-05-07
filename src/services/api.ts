@@ -7,7 +7,9 @@ import axios from 'axios';
 // Créer une instance axios pré-configurée
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
-  ...
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 // Intercepteur : ajoute automatiquement le token JWT à chaque requête
