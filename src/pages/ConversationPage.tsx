@@ -3,10 +3,11 @@
 // ============================================================================
 
 import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import * as messageService from '../services/messageService';
 import * as authService from '../services/authService';
 import type { Message } from '../services/messageService';
+import Avatar from '../components/Avatar';
 
 export default function ConversationPage() {
   const { id } = useParams<{ id: string }>();
@@ -78,9 +79,7 @@ export default function ConversationPage() {
           </button>
           {autre && (
             <>
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sister-300 to-sister-500 flex items-center justify-center text-white font-bold">
-                {autre.prenom.charAt(0).toUpperCase()}
-              </div>
+              <Avatar prenom={autre.prenom} taille="md" />
               <div>
                 <div className="font-semibold text-gray-800">{autre.prenom}</div>
                 <div className="text-xs text-green-500">● Active now</div>

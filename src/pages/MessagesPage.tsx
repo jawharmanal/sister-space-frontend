@@ -10,6 +10,7 @@ import * as authService from '../services/authService';
 import type { Conversation } from '../services/messageService';
 import type { UtilisatriceListe } from '../services/utilisatriceService';
 import BottomNav from '../components/BottomNav';
+import Avatar from '../components/Avatar';
 
 export default function MessagesPage() {
   const navigate = useNavigate();
@@ -129,7 +130,6 @@ export default function MessagesPage() {
         )}
 
         {!loading && conversations.map((conv) => {
-          const initiale = conv.autre_prenom.charAt(0).toUpperCase();
           const nbNonLus = parseInt(conv.nb_non_lus);
 
           return (
@@ -138,10 +138,8 @@ export default function MessagesPage() {
               to={`/conversation/${conv.id}`}
               className="flex items-center gap-3 p-3 rounded-xl hover:bg-pink-50 transition cursor-pointer"
             >
-              <div className="relative">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sister-300 to-sister-500 flex items-center justify-center text-white font-bold flex-shrink-0">
-                  {initiale}
-                </div>
+              <div className="relative flex-shrink-0">
+                <Avatar prenom={conv.autre_prenom} taille="lg" />
                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
               </div>
 
@@ -217,9 +215,7 @@ export default function MessagesPage() {
                   onClick={() => demarrerConversation(u.id)}
                   className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-pink-50 transition text-left"
                 >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sister-300 to-sister-500 flex items-center justify-center text-white font-bold flex-shrink-0">
-                    {u.prenom.charAt(0).toUpperCase()}
-                  </div>
+                  <Avatar prenom={u.prenom} taille="md" />
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-gray-800">{u.prenom}</div>
                     <div className="text-xs text-sister-500">{u.pseudo}</div>

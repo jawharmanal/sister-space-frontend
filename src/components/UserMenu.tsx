@@ -5,6 +5,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as authService from '../services/authService';
+import Avatar from './Avatar';
 
 export default function UserMenu() {
   const navigate = useNavigate();
@@ -30,8 +31,6 @@ export default function UserMenu() {
 
   if (!utilisatrice) return null;
 
-  const initiale = utilisatrice.prenom.charAt(0).toUpperCase();
-
   return (
     <div className="relative" ref={menuRef}>
       
@@ -40,9 +39,7 @@ export default function UserMenu() {
         onClick={() => setOuvert(!ouvert)}
         className="flex items-center gap-2 hover:bg-pink-50 px-2 py-1 rounded-full transition"
       >
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sister-300 to-sister-500 flex items-center justify-center text-white font-bold text-sm">
-          {initiale}
-        </div>
+        <Avatar prenom={utilisatrice.prenom} taille="sm" />
         <span className="text-sm text-gray-700 hidden sm:inline">
           {utilisatrice.prenom}
         </span>
@@ -54,10 +51,13 @@ export default function UserMenu() {
         <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden z-30">
           
           {/* En-tête du menu */}
-          <div className="p-4 bg-gradient-to-br from-sister-50 to-pink-50 border-b border-pink-100">
-            <div className="font-semibold text-gray-800">{utilisatrice.prenom}</div>
-            <div className="text-xs text-sister-500">{utilisatrice.pseudo}</div>
-            <div className="text-xs text-gray-400 mt-1 truncate">{utilisatrice.email}</div>
+          <div className="p-4 bg-gradient-to-br from-sister-50 to-pink-50 border-b border-pink-100 flex items-center gap-3">
+            <Avatar prenom={utilisatrice.prenom} taille="md" />
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-gray-800">{utilisatrice.prenom}</div>
+              <div className="text-xs text-sister-500">{utilisatrice.pseudo}</div>
+              <div className="text-xs text-gray-400 truncate">{utilisatrice.email}</div>
+            </div>
           </div>
 
           {/* Options */}
@@ -81,9 +81,9 @@ export default function UserMenu() {
                 onClick={() => { setOuvert(false); navigate('/admin'); }}
                 className="w-full text-left px-4 py-2 hover:bg-pink-50 text-sm text-sister-600 font-medium transition flex items-center gap-2"
               >
-               👮 Admin
+                👮 Admin
               </button>
-             )}
+            )}
 
             <div className="border-t border-pink-100 my-1"></div>
 

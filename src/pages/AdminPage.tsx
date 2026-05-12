@@ -8,6 +8,7 @@ import * as adminService from '../services/adminService';
 import * as authService from '../services/authService';
 import type { UtilisatriceAdmin } from '../services/adminService';
 import BottomNav from '../components/BottomNav';
+import Avatar from '../components/Avatar';
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -152,9 +153,7 @@ export default function AdminPage() {
           <div key={u.id} className="bg-white rounded-2xl shadow-sm p-4 mb-3 border border-pink-100">
             <div className="flex items-start gap-3">
               {/* Avatar */}
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sister-300 to-sister-500 flex items-center justify-center text-white font-bold flex-shrink-0">
-                {u.prenom.charAt(0).toUpperCase()}
-              </div>
+              <Avatar prenom={u.prenom} taille="lg" />
 
               {/* Infos */}
               <div className="flex-1 min-w-0">

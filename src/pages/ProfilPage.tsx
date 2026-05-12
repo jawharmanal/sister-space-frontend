@@ -1,5 +1,5 @@
 // ============================================================================
-// SISTER SPACE — Page Profil
+// SISTER SPACE — Page Profil (avec posts en grille + photos)
 // ============================================================================
 
 import { useEffect, useState } from 'react';
@@ -7,12 +7,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import * as authService from '../services/authService';
 import BottomNav from '../components/BottomNav';
+import Avatar from '../components/Avatar';
 
 interface PostUtilisatrice {
   id: number;
   contenu: string;
   date_creation: string;
   nb_likes: string;
+  photos_urls: string[] | null;
 }
 
 export default function ProfilPage() {
@@ -53,11 +55,12 @@ export default function ProfilPage() {
   if (!utilisatrice) return null;
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24 bg-gradient-to-b from-pink-50 to-white">
       
+      {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-pink-100">
         <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
-          <Link to="/feed" className="text-sister-500 hover:text-sister-700">←</Link>
+          <Link to="/feed" className="text-sister-500 hover:text-sister-700 text-xl">←</Link>
           <h1 className="font-semibold text-gray-800">{utilisatrice.pseudo}</h1>
           <button
             onClick={handleLogout}
@@ -70,14 +73,16 @@ export default function ProfilPage() {
 
       <main className="max-w-2xl mx-auto px-4 pt-8">
         
+        {/* Avatar + nom + pseudo */}
         <div className="flex flex-col items-center mb-6">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sister-300 to-sister-500 flex items-center justify-center text-white text-4xl font-bold mb-3">
-            {utilisatrice.prenom.charAt(0).toUpperCase()}
+          <div className="mb-3 ring-4 ring-pink-100 rounded-full">
+            <Avatar prenom={utilisatrice.prenom} taille="xl" />
           </div>
           <h2 className="text-2xl font-bold text-gray-800">{utilisatrice.prenom}</h2>
           <p className="text-sister-500 text-sm">{utilisatrice.pseudo}</p>
         </div>
 
+        {/* Stats */}
         <div className="flex justify-center gap-8 mb-6">
           <div className="text-center">
             <div className="text-2xl font-bold text-gray-800">{mesPosts.length}</div>
@@ -89,12 +94,14 @@ export default function ProfilPage() {
           </div>
         </div>
 
+        {/* Bouton éditer */}
         <div className="text-center mb-8">
           <button className="bg-white border-2 border-sister-200 text-sister-600 px-6 py-2 rounded-full font-medium text-sm hover:bg-sister-50 transition">
             ✏️ Edit profile
           </button>
         </div>
 
+        {/* Mes posts en grille */}
         <div>
           <h3 className="font-semibold text-gray-700 mb-3 uppercase text-sm tracking-wide">
             Mes posts
@@ -120,15 +127,36 @@ export default function ProfilPage() {
           {!loading && mesPosts.length > 0 && (
             <div className="grid grid-cols-3 gap-2">
               {mesPosts.map((post) => (
-                <div
+                <Link
                   key={post.id}
-                  className="aspect-square bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl p-3 flex flex-col justify-between"
+                  to={`/post/${post.id}`}
+                  className="aspect-square rounded-xl overflow-hidden relative group cursor-pointer"
                 >
-                  <p className="text-xs text-gray-700 line-clamp-3">{post.contenu}</p>
-                  <div className="text-xs text-sister-600 font-semibold">
-                    ❤️ {post.nb_likes}
-                  </div>
-                </div>
+                  {/* Si le post a une photo, on l'affiche */}
+                  {post.photos_urls && post.photos_urls.length > 0 ? (
+                    <>
+                      <img 
+                        src={post.photos_urls[0]} 
+                        alt="Post" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                      />
+                      {/* Overlay au hover avec le nb de likes */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <div className="text-white font-bold flex items-center gap-1 text-sm">
+                          ❤️ {post.nb_likes}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    /* Sinon : carte avec le texte du post */
+                    <div className="w-full h-full bg-gradient-to-br from-pink-100 to-pink-200 p-3 flex flex-col justify-between">
+                      <p className="text-xs text-gray-700 line-clamp-4 leading-tight">{post.contenu}</p>
+                      <div className="text-xs text-sister-600 font-semibold flex items-center gap-1">
+                        ❤️ {post.nb_likes}
+                      </div>
+                    </div>
+                  )}
+                </Link>
               ))}
             </div>
           )}

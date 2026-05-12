@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Post } from '../services/postService';
 import * as postService from '../services/postService';
+import Avatar from './Avatar';
 
 interface PostCardProps {
   post: Post;
@@ -14,9 +15,6 @@ interface PostCardProps {
 export default function PostCard({ post }: PostCardProps) {
   const [nbLikes, setNbLikes] = useState(parseInt(post.nb_likes));
   const [estLike, setEstLike] = useState(false);
-
-  // Première lettre du prénom pour l'avatar
-  const initiale = post.auteure_prenom.charAt(0).toUpperCase();
 
   // Format de la date relative (ex: "12 min ago")
   const formaterDate = (dateStr: string) => {
@@ -59,9 +57,7 @@ export default function PostCard({ post }: PostCardProps) {
         
         {/* En-tête : avatar + prénom + date */}
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sister-300 to-sister-500 flex items-center justify-center text-white font-bold">
-            {initiale}
-          </div>
+          <Avatar prenom={post.auteure_prenom} taille="md" />
           <div className="flex-1">
             <div className="font-semibold text-gray-800">{post.auteure_prenom}</div>
             <div className="text-xs text-gray-400">{formaterDate(post.date_creation)}</div>
@@ -80,7 +76,7 @@ export default function PostCard({ post }: PostCardProps) {
               className="w-full max-h-96 object-cover"
             />
           </div>
-       )}
+        )}
 
         {/* Actions : like + commentaire */}
         <div className="flex items-center gap-4 pt-2 border-t border-pink-50">
