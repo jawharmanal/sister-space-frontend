@@ -1,5 +1,5 @@
 // ============================================================================
-// SISTER SPACE — Page de connexion
+// SISTER SPACE — Page de connexion (avec "Se souvenir de moi")
 // ============================================================================
 
 import { useState } from 'react';
@@ -12,6 +12,7 @@ export default function LoginPage() {
   // ----- States du formulaire -----
   const [email, setEmail] = useState('');
   const [motDePasse, setMotDePasse] = useState('');
+  const [seSouvenirDeMoi, setSeSouvenirDeMoi] = useState(false);
   const [erreur, setErreur] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +23,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const data = await authService.login(email, motDePasse);
+      const data = await authService.seConnecter(email, motDePasse, seSouvenirDeMoi);
       console.log('Connexion réussie :', data);
       navigate('/feed'); // Redirection vers le fil d'actualité
     } catch (err: any) {
@@ -78,11 +79,24 @@ export default function LoginPage() {
               required
               className="w-full px-4 py-3 border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sister-400"
             />
-            <div className="text-right mt-1">
-              <a href="#" className="text-sm text-sister-600 hover:underline">
-                Forgot password?
-              </a>
-            </div>
+          </div>
+
+          {/* Se souvenir de moi + Mot de passe oublié */}
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={seSouvenirDeMoi}
+                onChange={(e) => setSeSouvenirDeMoi(e.target.checked)}
+                className="w-4 h-4 rounded border-pink-300 text-sister-500 focus:ring-sister-400 focus:ring-2 cursor-pointer"
+              />
+              <span className="text-sm text-gray-600 group-hover:text-sister-600 transition select-none">
+                Se souvenir de moi
+              </span>
+            </label>
+            <a href="#" className="text-sm text-sister-600 hover:underline">
+              Mot de passe oublié ?
+            </a>
           </div>
 
           {/* Message d'erreur */}

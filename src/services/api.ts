@@ -12,23 +12,36 @@ const api = axios.create({
   },
 });
 
-// Intercepteur : ajoute automatiquement le token JWT à chaque requête
+// ----------------------------------------------------------------------------
+// Helper : récupère le token où qu'il soit (localStorage ou sessionStorage)
+// ----------------------------------------------------------------------------
+const getToken = (): string | null => {
+  return localStorage.getItem('token') || sessionStorage.getItem('token');
+};
+
+// ----------------------------------------------------------------------------
+// Intercepteur REQUÊTE : ajoute automatiquement le token JWT à chaque requête
+// ----------------------------------------------------------------------------
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Intercepteur : gère les erreurs 401 (token expiré)
+// ----------------------------------------------------------------------------
+// Intercepteur RÉPONSE : gère les erreurs 401 (token expiré)
+// ----------------------------------------------------------------------------
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expiré → déconnexion
+      // Token expiré → déconnexion : on nettoie les DEUX storages
       localStorage.removeItem('token');
       localStorage.removeItem('utilisatrice');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('utilisatrice');
       window.location.href = '/login';
     }
     return Promise.reject(error);
