@@ -101,8 +101,8 @@ export default function AdminPage() {
       {/* Header */}
       <header className="bg-gradient-to-br from-sister-500 to-sister-600 text-white px-4 py-6 sticky top-0 z-10 shadow-md">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-2xl font-bold mb-1">👮 Dashboard Admin</h1>
-          <p className="text-sm opacity-90">Gérer les inscriptions et utilisatrices</p>
+          <h1 className="text-2xl font-bold mb-1">🌸 Gestion de la communauté</h1>
+          <p className="text-sm opacity-90">Valider les inscriptions et veiller sur les sisters</p>
         </div>
       </header>
 
