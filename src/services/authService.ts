@@ -23,7 +23,7 @@ export const seConnecter = async (
   mot_de_passe: string,
   seSouvenirDeMoi: boolean = false
 ) => {
-  const response = await api.post('/auth/connexion', { 
+  const response = await api.post('/auth/login', { 
     email, 
     mot_de_passe,
     seSouvenirDeMoi,
