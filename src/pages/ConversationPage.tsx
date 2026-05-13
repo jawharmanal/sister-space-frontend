@@ -1,9 +1,11 @@
 // ============================================================================
 // SISTER SPACE — Page Conversation (chat)
+// Vibe : Glossier / Pinterest pastel
 // ============================================================================
 
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Send } from 'lucide-react';
 import * as messageService from '../services/messageService';
 import * as authService from '../services/authService';
 import type { Message } from '../services/messageService';
@@ -21,7 +23,6 @@ export default function ConversationPage() {
   const [nouveauMessage, setNouveauMessage] = useState('');
   const [envoiEnCours, setEnvoiEnCours] = useState(false);
 
-  // Charger la conversation
   useEffect(() => {
     if (!id) return;
     const charger = async () => {
@@ -38,7 +39,6 @@ export default function ConversationPage() {
     charger();
   }, [id]);
 
-  // Scroll en bas après chargement ou nouveau message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -66,23 +66,29 @@ export default function ConversationPage() {
   if (!utilisatrice) return null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-pink-50 to-white">
-      
+    <div className="min-h-screen flex flex-col">
+
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-pink-100 sticky top-0 z-10">
+      <header className="glass border-b border-sister-100/50 sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => navigate('/messages')}
-            className="text-sister-500 text-xl hover:text-sister-700"
+            className="p-2 -ml-2 rounded-full hover:bg-sister-50 text-mauve-500 hover:text-sister-600 transition"
           >
-            ←
+            <ArrowLeft size={20} strokeWidth={1.75} />
           </button>
           {autre && (
             <>
-              <Avatar prenom={autre.prenom} taille="md" />
+              <div className="relative">
+                <Avatar prenom={autre.prenom} taille="md" />
+                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-white" />
+              </div>
               <div>
-                <div className="font-semibold text-gray-800">{autre.prenom}</div>
-                <div className="text-xs text-green-500">● Active now</div>
+                <div className="font-semibold text-cocoa-900">{autre.prenom}</div>
+                <div className="text-xs text-emerald-500 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+                  En ligne
+                </div>
               </div>
             </>
           )}
@@ -92,35 +98,42 @@ export default function ConversationPage() {
       {/* Messages */}
       <main className="flex-1 overflow-y-auto px-4 py-4 max-w-2xl mx-auto w-full">
         {loading && (
-          <div className="text-center text-gray-400 py-8">Chargement... 🌸</div>
+          <div className="text-center text-mauve-400 py-8">Chargement...</div>
         )}
 
         {!loading && messages.length === 0 && (
-          <div className="text-center text-gray-400 py-8">
-            <p>💌 Démarre la conversation !</p>
+          <div className="text-center text-mauve-500 py-12">
+            <div className="text-4xl mb-3">💌</div>
+            <p className="font-serif text-lg text-cocoa-900 mb-1">Démarre la conversation !</p>
+            <p className="text-sm">Envoie ton premier message ✨</p>
           </div>
         )}
 
-        {!loading && messages.map((msg) => {
+        {!loading && messages.map((msg, index) => {
           const estMoi = msg.id_expeditrice === utilisatrice.id;
+          const messagePrecedent = index > 0 ? messages[index - 1] : null;
+          const memeMessageGroupe = messagePrecedent?.id_expeditrice === msg.id_expeditrice;
+
           return (
             <div
               key={msg.id}
-              className={`flex mb-3 ${estMoi ? 'justify-end' : 'justify-start'}`}
+              className={`flex mb-1.5 ${estMoi ? 'justify-end' : 'justify-start'} animate-fade-in`}
             >
               <div className={`max-w-[75%] ${estMoi ? 'order-2' : 'order-1'}`}>
                 <div
-                  className={`px-4 py-2 rounded-2xl ${
+                  className={`px-4 py-2.5 ${
                     estMoi
-                      ? 'bg-gradient-to-br from-sister-400 to-sister-500 text-white rounded-br-md'
-                      : 'bg-white text-gray-800 border border-pink-100 rounded-bl-md'
+                      ? 'bg-gradient-sister text-white shadow-pink-soft rounded-3xl rounded-br-lg'
+                      : 'bg-white text-cocoa-900 border border-sister-100 rounded-3xl rounded-bl-lg shadow-cream'
                   }`}
                 >
-                  {msg.contenu}
+                  <p className="whitespace-pre-line text-sm leading-relaxed">{msg.contenu}</p>
                 </div>
-                <div className={`text-xs text-gray-400 mt-1 ${estMoi ? 'text-right' : 'text-left'}`}>
-                  {formaterHeure(msg.date_envoi)}
-                </div>
+                {!memeMessageGroupe && (
+                  <div className={`text-[11px] text-mauve-400 mt-1 px-2 ${estMoi ? 'text-right' : 'text-left'}`}>
+                    {formaterHeure(msg.date_envoi)}
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -130,21 +143,21 @@ export default function ConversationPage() {
       </main>
 
       {/* Zone de saisie */}
-      <footer className="bg-white border-t border-pink-100 p-3 sticky bottom-0">
+      <footer className="bg-white/80 backdrop-blur-md border-t border-sister-100 p-3 sticky bottom-0">
         <form onSubmit={handleEnvoi} className="max-w-2xl mx-auto flex items-center gap-2">
           <input
             type="text"
             value={nouveauMessage}
             onChange={(e) => setNouveauMessage(e.target.value)}
-            placeholder="Message..."
-            className="flex-1 px-4 py-2 bg-pink-50 border border-pink-100 rounded-full focus:outline-none focus:ring-2 focus:ring-sister-300"
+            placeholder="Écrire un message..."
+            className="flex-1 px-4 py-3 bg-sister-50/60 border border-sister-100 rounded-full text-cocoa-900 placeholder-mauve-400 focus:outline-none focus:border-sister-400 focus:ring-4 focus:ring-sister-100"
           />
           <button
             type="submit"
             disabled={envoiEnCours || !nouveauMessage.trim()}
-            className="w-10 h-10 rounded-full bg-gradient-to-br from-sister-400 to-sister-500 text-white flex items-center justify-center disabled:opacity-40 hover:shadow-lg transition"
+            className="w-11 h-11 rounded-full bg-gradient-sister text-white flex items-center justify-center disabled:opacity-40 shadow-pink-soft hover:shadow-pink-md hover:scale-105 active:scale-95 transition disabled:hover:scale-100"
           >
-            ➤
+            <Send size={16} strokeWidth={2} />
           </button>
         </form>
       </footer>

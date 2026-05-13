@@ -12,7 +12,7 @@ import CategoriePage from './pages/CategoriePage';
 import PostDetailPage from './pages/PostDetailPage';
 import * as authService from './services/authService';
 import AdminPage from './pages/AdminPage';
-import ParametresPage from './pages/ParametresPage';
+import ParametresPage from './pages/ParametresPage.tsx';
 
 // Composant pour protéger les routes
 function RouteProtegee({ children }: { children: React.ReactNode }) {

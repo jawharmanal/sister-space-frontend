@@ -1,9 +1,11 @@
 // ============================================================================
 // SISTER SPACE — Page Profil (avec posts en grille + photos)
+// Vibe : Glossier / Pinterest pastel
 // ============================================================================
 
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Settings, Heart } from 'lucide-react';
 import api from '../services/api';
 import * as authService from '../services/authService';
 import BottomNav from '../components/BottomNav';
@@ -20,7 +22,7 @@ interface PostUtilisatrice {
 export default function ProfilPage() {
   const navigate = useNavigate();
   const utilisatrice = authService.getUtilisatriceConnectee();
-  
+
   const [mesPosts, setMesPosts] = useState<PostUtilisatrice[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,112 +49,130 @@ export default function ProfilPage() {
     chargerMesPosts();
   }, []);
 
-  const handleLogout = () => {
-    authService.logout();
-    navigate('/login');
-  };
-
   if (!utilisatrice) return null;
 
   return (
-    <div className="min-h-screen pb-24 bg-gradient-to-b from-pink-50 to-white">
-      
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-pink-100">
+    <div className="min-h-screen pb-28">
+
+      {/* Header avec glassmorphism */}
+      <header className="glass sticky top-0 z-10 border-b border-sister-100/50">
         <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
-          <Link to="/feed" className="text-sister-500 hover:text-sister-700 text-xl">←</Link>
-          <h1 className="font-semibold text-gray-800">{utilisatrice.pseudo}</h1>
-          <button
-            onClick={handleLogout}
-            className="text-xs text-gray-400 hover:text-sister-500"
+          <Link
+            to="/feed"
+            className="p-2 -ml-2 rounded-full hover:bg-sister-50 text-mauve-500 hover:text-sister-600 transition"
           >
-            Déconnexion
-          </button>
+            <ArrowLeft size={20} strokeWidth={1.75} />
+          </Link>
+          <h1 className="font-serif text-lg text-cocoa-900">{utilisatrice.pseudo}</h1>
+          <Link
+            to="/parametres"
+            className="p-2 -mr-2 rounded-full hover:bg-sister-50 text-mauve-500 hover:text-sister-600 transition"
+          >
+            <Settings size={20} strokeWidth={1.75} />
+          </Link>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 pt-8">
-        
+      <main className="max-w-2xl mx-auto px-4 pt-8 animate-fade-in-up">
+
         {/* Avatar + nom + pseudo */}
         <div className="flex flex-col items-center mb-6">
-          <div className="mb-3 ring-4 ring-pink-100 rounded-full">
-            <Avatar prenom={utilisatrice.prenom} taille="xl" />
+          <div className="mb-4 p-1 bg-gradient-sister rounded-full shadow-pink-glow">
+            <div className="bg-white rounded-full p-1">
+              <Avatar prenom={utilisatrice.prenom} taille="2xl" photoUrl={(utilisatrice as any).photoUrl} />
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800">{utilisatrice.prenom}</h2>
-          <p className="text-sister-500 text-sm">{utilisatrice.pseudo}</p>
+          <h2 className="font-serif text-3xl text-cocoa-900">{utilisatrice.prenom}</h2>
+          <p className="text-sister-600 text-sm mt-0.5">{utilisatrice.pseudo}</p>
+          {(utilisatrice as any).bio && (
+            <p className="text-mauve-600 text-sm text-center mt-3 max-w-xs italic">
+              "{(utilisatrice as any).bio}"
+            </p>
+          )}
         </div>
 
         {/* Stats */}
         <div className="flex justify-center gap-8 mb-6">
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-800">{mesPosts.length}</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">posts</div>
+            <div className="font-serif text-2xl text-cocoa-900">{mesPosts.length}</div>
+            <div className="text-xs text-mauve-500 uppercase tracking-wider mt-0.5">
+              {mesPosts.length > 1 ? 'posts' : 'post'}
+            </div>
           </div>
+          <div className="w-px bg-sister-200" />
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-800">0</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">friends</div>
+            <div className="font-serif text-2xl text-cocoa-900">0</div>
+            <div className="text-xs text-mauve-500 uppercase tracking-wider mt-0.5">sisters</div>
           </div>
         </div>
 
         {/* Bouton éditer */}
-        <div className="text-center mb-8">
-          <button className="bg-white border-2 border-sister-200 text-sister-600 px-6 py-2 rounded-full font-medium text-sm hover:bg-sister-50 transition">
-            ✏️ Edit profile
-          </button>
+        <div className="text-center mb-10">
+          <Link
+            to="/parametres"
+            className="btn-sister-outline inline-flex items-center gap-2 text-sm"
+          >
+            <Settings size={14} strokeWidth={1.75} />
+            Modifier mon profil
+          </Link>
         </div>
 
         {/* Mes posts en grille */}
         <div>
-          <h3 className="font-semibold text-gray-700 mb-3 uppercase text-sm tracking-wide">
-            Mes posts
+          <h3 className="font-serif text-xl text-cocoa-900 mb-4 text-center">
+            Mes publications
           </h3>
-          
+
           {loading && (
-            <div className="text-center text-gray-400 py-8">Chargement... 🌸</div>
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <div className="flex gap-1.5">
+                <span className="w-2 h-2 bg-sister-400 rounded-full animate-pulse" />
+                <span className="w-2 h-2 bg-sister-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                <span className="w-2 h-2 bg-sister-600 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+              </div>
+              <p className="text-mauve-400 text-sm">Chargement...</p>
+            </div>
           )}
 
           {!loading && mesPosts.length === 0 && (
-            <div className="bg-pink-50 rounded-2xl p-8 text-center text-gray-500">
-              <div className="text-4xl mb-2">🌸</div>
-              <p>Tu n'as pas encore publié de post</p>
-              <Link
-                to="/creer-post"
-                className="inline-block mt-3 bg-sister-500 text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-sister-600"
-              >
-                Publier mon premier post
+            <div className="card-sister p-10 text-center">
+              <div className="text-5xl mb-3">🌸</div>
+              <p className="font-serif text-lg text-cocoa-900 mb-1">Pas encore de post</p>
+              <p className="text-mauve-500 text-sm mb-5">Partage ta première bonne adresse !</p>
+              <Link to="/creer-post" className="btn-sister inline-block text-sm">
+                Publier ✨
               </Link>
             </div>
           )}
 
           {!loading && mesPosts.length > 0 && (
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2.5">
               {mesPosts.map((post) => (
                 <Link
                   key={post.id}
                   to={`/post/${post.id}`}
-                  className="aspect-square rounded-xl overflow-hidden relative group cursor-pointer"
+                  className="aspect-square rounded-2xl overflow-hidden relative group cursor-pointer shadow-pink-soft hover:shadow-pink-md transition-shadow"
                 >
-                  {/* Si le post a une photo, on l'affiche */}
                   {post.photos_urls && post.photos_urls.length > 0 ? (
                     <>
-                      <img 
-                        src={post.photos_urls[0]} 
-                        alt="Post" 
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                      <img
+                        src={post.photos_urls[0]}
+                        alt="Post"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
-                      {/* Overlay au hover avec le nb de likes */}
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <div className="text-white font-bold flex items-center gap-1 text-sm">
-                          ❤️ {post.nb_likes}
+                      <div className="absolute inset-0 bg-gradient-to-t from-cocoa-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex items-end justify-center pb-3">
+                        <div className="text-white text-sm font-medium flex items-center gap-1">
+                          <Heart size={14} fill="white" strokeWidth={0} />
+                          {post.nb_likes}
                         </div>
                       </div>
                     </>
                   ) : (
-                    /* Sinon : carte avec le texte du post */
-                    <div className="w-full h-full bg-gradient-to-br from-pink-100 to-pink-200 p-3 flex flex-col justify-between">
-                      <p className="text-xs text-gray-700 line-clamp-4 leading-tight">{post.contenu}</p>
-                      <div className="text-xs text-sister-600 font-semibold flex items-center gap-1">
-                        ❤️ {post.nb_likes}
+                    <div className="w-full h-full bg-gradient-to-br from-sister-100 to-champagne-100 p-3 flex flex-col justify-between">
+                      <p className="text-xs text-cocoa-800 line-clamp-5 leading-tight">{post.contenu}</p>
+                      <div className="text-xs text-sister-600 font-medium flex items-center gap-1">
+                        <Heart size={12} fill="currentColor" strokeWidth={0} />
+                        {post.nb_likes}
                       </div>
                     </div>
                   )}

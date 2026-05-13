@@ -1,9 +1,11 @@
 // ============================================================================
-// SISTER SPACE — Page Messages (avec démarrage de conversation)
+// SISTER SPACE — Page Messages
+// Vibe : Glossier / Pinterest pastel
 // ============================================================================
 
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Search, Pencil, X, ChevronRight } from 'lucide-react';
 import * as messageService from '../services/messageService';
 import * as utilisatriceService from '../services/utilisatriceService';
 import * as authService from '../services/authService';
@@ -15,12 +17,11 @@ import Avatar from '../components/Avatar';
 export default function MessagesPage() {
   const navigate = useNavigate();
   const utilisatriceConnectee = authService.getUtilisatriceConnectee();
-  
+
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [erreur, setErreur] = useState('');
 
-  // États pour la modale de nouvelle conversation
   const [modaleOuverte, setModaleOuverte] = useState(false);
   const [utilisatrices, setUtilisatrices] = useState<UtilisatriceListe[]>([]);
   const [chargementUtilisatrices, setChargementUtilisatrices] = useState(false);
@@ -40,13 +41,11 @@ export default function MessagesPage() {
     charger();
   }, []);
 
-  // Ouvrir la modale + charger les utilisatrices
   const ouvrirModale = async () => {
     setModaleOuverte(true);
     setChargementUtilisatrices(true);
     try {
       const data = await utilisatriceService.getAllUtilisatrices();
-      // Filtrer pour exclure soi-même
       const filtrees = data.filter((u) => u.id !== utilisatriceConnectee?.id);
       setUtilisatrices(filtrees);
     } catch (err) {
@@ -56,7 +55,6 @@ export default function MessagesPage() {
     }
   };
 
-  // Démarrer ou rejoindre une conversation
   const demarrerConversation = async (id_destinataire: number) => {
     try {
       const conv = await messageService.demarrerConversation(id_destinataire);
@@ -67,7 +65,6 @@ export default function MessagesPage() {
     }
   };
 
-  // Filtrer les utilisatrices par recherche
   const utilisatricesFiltrees = utilisatrices.filter(
     (u) =>
       u.prenom.toLowerCase().includes(recherche.toLowerCase()) ||
@@ -79,7 +76,7 @@ export default function MessagesPage() {
     const date = new Date(dateStr);
     const maintenant = new Date();
     const diffMin = Math.floor((maintenant.getTime() - date.getTime()) / 60000);
-    if (diffMin < 1) return 'now';
+    if (diffMin < 1) return 'à l\'instant';
     if (diffMin < 60) return `${diffMin}m`;
     const diffH = Math.floor(diffMin / 60);
     if (diffH < 24) return `${diffH}h`;
@@ -89,42 +86,47 @@ export default function MessagesPage() {
   };
 
   return (
-    <div className="min-h-screen pb-24">
-      
+    <div className="min-h-screen pb-28">
+
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-pink-100">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">Messages</h1>
+      <header className="glass sticky top-0 z-10 border-b border-sister-100/50">
+        <div className="max-w-2xl mx-auto px-5 py-4 flex justify-between items-center">
+          <h1 className="font-serif text-2xl text-sister-600 italic">Messages</h1>
           <button
             onClick={ouvrirModale}
-            className="w-10 h-10 rounded-full bg-sister-100 text-sister-600 flex items-center justify-center hover:bg-sister-200 transition"
+            className="w-10 h-10 rounded-full bg-gradient-sister text-white flex items-center justify-center shadow-pink-soft hover:shadow-pink-md hover:scale-105 active:scale-95 transition"
             title="Nouvelle conversation"
           >
-            ✏️
+            <Pencil size={16} strokeWidth={2} />
           </button>
         </div>
       </header>
 
-      {/* Liste des conversations */}
-      <main className="max-w-2xl mx-auto px-4 pt-4">
-        
+      <main className="max-w-2xl mx-auto px-4 pt-4 animate-fade-in-up">
+
         {loading && (
-          <div className="text-center text-gray-400 py-12">Chargement... 🌸</div>
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <div className="flex gap-1.5">
+              <span className="w-2 h-2 bg-sister-400 rounded-full animate-pulse" />
+              <span className="w-2 h-2 bg-sister-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+              <span className="w-2 h-2 bg-sister-600 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+            </div>
+            <p className="text-mauve-400 text-sm">Chargement...</p>
+          </div>
         )}
 
         {erreur && (
-          <div className="bg-red-50 text-red-700 p-4 rounded-xl">⚠️ {erreur}</div>
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl">⚠️ {erreur}</div>
         )}
 
         {!loading && conversations.length === 0 && (
-          <div className="bg-pink-50 rounded-2xl p-8 text-center text-gray-500 mt-4">
-            <div className="text-4xl mb-3">💌</div>
-            <p className="mb-4">Tu n'as pas encore de conversation</p>
-            <button
-              onClick={ouvrirModale}
-              className="bg-sister-500 hover:bg-sister-600 text-white px-5 py-2 rounded-full font-medium transition"
-            >
-              ✏️ Démarrer une conversation
+          <div className="card-sister p-10 text-center mt-4">
+            <div className="text-5xl mb-3">💌</div>
+            <p className="font-serif text-lg text-cocoa-900 mb-1">Aucune conversation</p>
+            <p className="text-mauve-500 text-sm mb-5">Commence à échanger avec une sister !</p>
+            <button onClick={ouvrirModale} className="btn-sister inline-flex items-center gap-2 text-sm">
+              <Pencil size={14} strokeWidth={2} />
+              Démarrer une conversation
             </button>
           </div>
         )}
@@ -136,27 +138,29 @@ export default function MessagesPage() {
             <Link
               key={conv.id}
               to={`/conversation/${conv.id}`}
-              className="flex items-center gap-3 p-3 rounded-xl hover:bg-pink-50 transition cursor-pointer"
+              className="flex items-center gap-3 p-3 rounded-2xl hover:bg-sister-50/60 transition-all cursor-pointer mb-1 group"
             >
               <div className="relative flex-shrink-0">
                 <Avatar prenom={conv.autre_prenom} taille="lg" />
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 rounded-full ring-2 ring-white"></div>
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-baseline">
-                  <div className="font-semibold text-gray-800 truncate">{conv.autre_prenom}</div>
-                  <div className="text-xs text-gray-400 flex-shrink-0 ml-2">
+                <div className="flex justify-between items-baseline gap-2">
+                  <div className="font-semibold text-cocoa-900 truncate group-hover:text-sister-600 transition">
+                    {conv.autre_prenom}
+                  </div>
+                  <div className="text-xs text-mauve-400 flex-shrink-0">
                     {formaterTemps(conv.date_dernier_message)}
                   </div>
                 </div>
-                <div className={`text-sm truncate ${nbNonLus > 0 ? 'font-semibold text-gray-800' : 'text-gray-500'}`}>
+                <div className={`text-sm truncate mt-0.5 ${nbNonLus > 0 ? 'font-semibold text-cocoa-800' : 'text-mauve-500'}`}>
                   {conv.dernier_message || 'Démarrer la conversation...'}
                 </div>
               </div>
 
               {nbNonLus > 0 && (
-                <div className="bg-sister-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="bg-gradient-sister text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 shadow-pink-soft">
                   {nbNonLus}
                 </div>
               )}
@@ -165,47 +169,50 @@ export default function MessagesPage() {
         })}
       </main>
 
-      {/* MODALE — Démarrer une conversation */}
+      {/* MODALE — Nouvelle conversation */}
       {modaleOuverte && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4"
+        <div
+          className="fixed inset-0 bg-cocoa-900/30 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in"
           onClick={() => setModaleOuverte(false)}
         >
-          <div 
-            className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-hidden flex flex-col"
+          <div
+            className="bg-white rounded-3xl shadow-pink-md w-full max-w-md max-h-[80vh] overflow-hidden flex flex-col animate-fade-in-up"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header de la modale */}
-            <div className="px-5 py-4 border-b border-pink-100 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-800">Nouvelle conversation</h2>
+            {/* Header modale */}
+            <div className="px-5 py-4 border-b border-sister-100 flex justify-between items-center">
+              <h2 className="font-serif text-xl text-cocoa-900">Nouvelle conversation</h2>
               <button
                 onClick={() => setModaleOuverte(false)}
-                className="text-gray-400 hover:text-gray-600 text-xl"
+                className="text-mauve-400 hover:text-cocoa-800 hover:bg-sister-50 rounded-full p-2 transition"
               >
-                ✕
+                <X size={18} strokeWidth={1.75} />
               </button>
             </div>
 
             {/* Recherche */}
             <div className="p-4">
-              <input
-                type="text"
-                value={recherche}
-                onChange={(e) => setRecherche(e.target.value)}
-                placeholder="🔍 Rechercher une sister..."
-                className="w-full px-4 py-2 border border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-sister-300"
-              />
+              <div className="relative">
+                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-mauve-400" />
+                <input
+                  type="text"
+                  value={recherche}
+                  onChange={(e) => setRecherche(e.target.value)}
+                  placeholder="Rechercher une sister..."
+                  className="w-full pl-11 pr-4 py-3 bg-sister-50/60 border border-sister-100 rounded-full text-cocoa-900 placeholder-mauve-400 focus:outline-none focus:border-sister-400 focus:ring-4 focus:ring-sister-100"
+                />
+              </div>
             </div>
 
             {/* Liste */}
             <div className="overflow-y-auto px-2 pb-4 flex-1">
               {chargementUtilisatrices && (
-                <div className="text-center text-gray-400 py-8">Chargement... 🌸</div>
+                <div className="text-center text-mauve-400 py-8">Chargement...</div>
               )}
 
               {!chargementUtilisatrices && utilisatricesFiltrees.length === 0 && (
-                <div className="text-center text-gray-400 py-8">
-                  Aucune utilisatrice trouvée
+                <div className="text-center text-mauve-400 py-8">
+                  Aucune sister trouvée
                 </div>
               )}
 
@@ -213,14 +220,14 @@ export default function MessagesPage() {
                 <button
                   key={u.id}
                   onClick={() => demarrerConversation(u.id)}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-pink-50 transition text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-sister-50/60 transition text-left group"
                 >
                   <Avatar prenom={u.prenom} taille="md" />
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-800">{u.prenom}</div>
-                    <div className="text-xs text-sister-500">{u.pseudo}</div>
+                    <div className="font-semibold text-cocoa-900">{u.prenom}</div>
+                    <div className="text-xs text-sister-600">{u.pseudo}</div>
                   </div>
-                  <div className="text-sister-400 text-xl">→</div>
+                  <ChevronRight size={18} className="text-mauve-400 group-hover:text-sister-500 group-hover:translate-x-1 transition" />
                 </button>
               ))}
             </div>

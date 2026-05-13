@@ -1,9 +1,11 @@
 // ============================================================================
 // SISTER SPACE — Menu utilisatrice (avatar + dropdown)
+// Vibe : Glossier / Pinterest pastel
 // ============================================================================
 
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronDown, User, Settings, Shield, LogOut } from 'lucide-react';
 import * as authService from '../services/authService';
 import Avatar from './Avatar';
 
@@ -33,65 +35,72 @@ export default function UserMenu() {
 
   return (
     <div className="relative" ref={menuRef}>
-      
+
       {/* Bouton avatar */}
       <button
         onClick={() => setOuvert(!ouvert)}
-        className="flex items-center gap-2 hover:bg-pink-50 px-2 py-1 rounded-full transition"
+        className="flex items-center gap-2 hover:bg-sister-50 pl-1 pr-3 py-1 rounded-full transition-all"
       >
-        <Avatar prenom={utilisatrice.prenom} taille="sm" />
-        <span className="text-sm text-gray-700 hidden sm:inline">
+        <Avatar prenom={utilisatrice.prenom} taille="sm" photoUrl={(utilisatrice as any).photoUrl} />
+        <span className="text-sm font-medium text-cocoa-800 hidden sm:inline">
           {utilisatrice.prenom}
         </span>
-        <span className="text-gray-400 text-xs">▼</span>
+        <ChevronDown
+          size={14}
+          className={`text-mauve-400 transition-transform duration-200 ${ouvert ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {/* Menu déroulant */}
       {ouvert && (
-        <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden z-30">
-          
+        <div className="absolute right-0 top-full mt-2 w-64 glass rounded-3xl shadow-pink-md border border-sister-100/50 overflow-hidden z-30 animate-fade-in">
+
           {/* En-tête du menu */}
-          <div className="p-4 bg-gradient-to-br from-sister-50 to-pink-50 border-b border-pink-100 flex items-center gap-3">
-            <Avatar prenom={utilisatrice.prenom} taille="md" />
+          <div className="p-4 bg-gradient-to-br from-sister-50/80 to-champagne-100/40 border-b border-sister-100/50 flex items-center gap-3">
+            <Avatar prenom={utilisatrice.prenom} taille="lg" photoUrl={(utilisatrice as any).photoUrl} />
             <div className="flex-1 min-w-0">
-              <div className="font-semibold text-gray-800">{utilisatrice.prenom}</div>
-              <div className="text-xs text-sister-500">{utilisatrice.pseudo}</div>
-              <div className="text-xs text-gray-400 truncate">{utilisatrice.email}</div>
+              <div className="font-semibold text-cocoa-900 truncate">{utilisatrice.prenom}</div>
+              <div className="text-xs text-sister-600 truncate">{utilisatrice.pseudo}</div>
+              <div className="text-xs text-mauve-400 truncate">{utilisatrice.email}</div>
             </div>
           </div>
 
           {/* Options */}
-          <div className="py-1">
+          <div className="py-2">
             <button
               onClick={() => { setOuvert(false); navigate('/profil'); }}
-              className="w-full text-left px-4 py-2 hover:bg-pink-50 text-sm text-gray-700 transition flex items-center gap-2"
+              className="w-full text-left px-4 py-2.5 hover:bg-sister-50/60 text-sm text-cocoa-800 transition flex items-center gap-3"
             >
-              👤 Mon profil
+              <User size={16} strokeWidth={1.75} className="text-mauve-500" />
+              Mon profil
             </button>
 
             <button
               onClick={() => { setOuvert(false); navigate('/parametres'); }}
-              className="w-full text-left px-4 py-2 hover:bg-pink-50 text-sm text-gray-700 transition flex items-center gap-2"
+              className="w-full text-left px-4 py-2.5 hover:bg-sister-50/60 text-sm text-cocoa-800 transition flex items-center gap-3"
             >
-              ⚙️ Paramètres
+              <Settings size={16} strokeWidth={1.75} className="text-mauve-500" />
+              Paramètres
             </button>
 
             {utilisatrice.role === 'ADMIN' && (
               <button
                 onClick={() => { setOuvert(false); navigate('/admin'); }}
-                className="w-full text-left px-4 py-2 hover:bg-pink-50 text-sm text-sister-600 font-medium transition flex items-center gap-2"
+                className="w-full text-left px-4 py-2.5 hover:bg-sister-50/60 text-sm text-sister-600 font-medium transition flex items-center gap-3"
               >
-                👮 Admin
+                <Shield size={16} strokeWidth={1.75} className="text-sister-500" />
+                Gestion communauté
               </button>
             )}
 
-            <div className="border-t border-pink-100 my-1"></div>
+            <div className="border-t border-sister-100/60 my-1.5 mx-3"></div>
 
             <button
               onClick={handleLogout}
-              className="w-full text-left px-4 py-2 hover:bg-red-50 text-sm text-red-500 transition flex items-center gap-2"
+              className="w-full text-left px-4 py-2.5 hover:bg-red-50/60 text-sm text-red-500 transition flex items-center gap-3"
             >
-              🚪 Déconnexion
+              <LogOut size={16} strokeWidth={1.75} />
+              Déconnexion
             </button>
           </div>
         </div>
