@@ -104,7 +104,7 @@ export default function ParametresPage() {
     setUploadEnCours(true);
 
     try {
-      const url = await uploadService.uploaderImage(fichier);
+      const url = await uploadService.uploadImage(fichier);
 
       const utilisatriceModifiee = await utilisatriceService.modifierMonProfil({
         photo_url: url,
