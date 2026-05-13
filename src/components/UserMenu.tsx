@@ -70,7 +70,7 @@ export default function UserMenu() {
             </button>
 
             <button
-              onClick={() => { setOuvert(false); alert('Paramètres à venir 🌸'); }}
+              onClick={() => { setOuvert(false); navigate('/parametres'); }}
               className="w-full text-left px-4 py-2 hover:bg-pink-50 text-sm text-gray-700 transition flex items-center gap-2"
             >
               ⚙️ Paramètres

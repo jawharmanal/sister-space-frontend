@@ -12,48 +12,44 @@ import CategoriePage from './pages/CategoriePage';
 import PostDetailPage from './pages/PostDetailPage';
 import * as authService from './services/authService';
 import AdminPage from './pages/AdminPage';
+import ParametresPage from './pages/ParametresPage';
+
 // Composant pour protéger les routes
 function RouteProtegee({ children }: { children: React.ReactNode }) {
   return estConnectee() ? <>{children}</> : <Navigate to="/login" />;
 }
+
 function RouteAdmin({ children }: { children: React.ReactNode }) {
   const utilisatrice = authService.getUtilisatriceConnectee();
-  
-  // Pas connectée → redirige vers login
   if (!utilisatrice) return <Navigate to="/login" />;
-  
-  // Connectée mais pas ADMIN → redirige vers feed
   if (utilisatrice.role !== 'ADMIN') return <Navigate to="/feed" />;
-  
-  // ADMIN → autorise l'accès
   return <>{children}</>;
 }
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/feed" />} />
         <Route path="/login" element={<LoginPage />} />
-        
+        <Route path="/register" element={<RegisterPage />} />
+
         <Route 
           path="/feed" 
           element={<RouteProtegee><FeedPage /></RouteProtegee>} 
         />
-        
         <Route 
           path="/creer-post" 
           element={<RouteProtegee><CreerPostPage /></RouteProtegee>} 
         />
-        
         <Route 
           path="/profil" 
           element={<RouteProtegee><ProfilPage /></RouteProtegee>} 
         />
-        
-        {/* Routes temporaires — on les fera demain */}
-        <Route path="/register" element={<RegisterPage />} 
+        <Route 
+          path="/parametres" 
+          element={<RouteProtegee><ParametresPage /></RouteProtegee>} 
         />
-
         <Route 
           path="/messages" 
           element={<RouteProtegee><MessagesPage /></RouteProtegee>} 
