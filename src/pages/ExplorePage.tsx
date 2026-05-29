@@ -67,7 +67,7 @@ export default function ExplorePage() {
 
   const chargerSisters = async () => {
     try {
-      const data = await utilisatriceService.getUtilisatrices();
+      const data = await utilisatriceService.getAllUtilisatrices();
       setSisters((data || []).slice(0, 4));
     } catch (e) {
       console.error('Erreur sisters:', e);

@@ -43,8 +43,8 @@ export default function FeedPage() {
   const chargerDonnees = async () => {
     try {
       const [postsData, suggestionsData] = await Promise.all([
-        postService.getPosts(),
-        utilisatriceService.getUtilisatrices().catch(() => []),
+        postService.getAllPosts(),
+        utilisatriceService.getAllUtilisatrices().catch(() => []),
       ]);
       setPosts(postsData || []);
       // Prendre les 3 premières utilisatrices pour les suggestions
@@ -60,12 +60,12 @@ export default function FeedPage() {
   const handleLike = async (postId: number, estLikee: boolean) => {
     try {
       if (estLikee) {
-        await postService.retirerLike(postId);
+        await postService.unlikerPost(postId);
       } else {
-        await postService.likerPost(postId);
+        await postService.unlikerPost(postId);
       }
       // Recharger les posts
-      const updated = await postService.getPosts();
+      const updated = await postService.getAllPosts()
       setPosts(updated || []);
     } catch (e) {
       console.error('Erreur like:', e);

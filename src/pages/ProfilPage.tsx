@@ -32,7 +32,7 @@ export default function ProfilPage() {
 
   const chargerPosts = async () => {
     try {
-      const tousLesPosts = await postService.getPosts();
+      const tousLesPosts = await postService.getAllPosts();
       // Filtrer pour ne garder que les posts de l'utilisatrice connectée
       // (on suppose que getPosts retourne tous les posts avec auteure_pseudo)
       const mes = (tousLesPosts || []).filter(

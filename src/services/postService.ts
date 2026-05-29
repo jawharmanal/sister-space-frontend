@@ -55,3 +55,8 @@ export const creerCommentaire = async (id_post: number, contenu: string): Promis
   const response = await api.post(`/posts/${id_post}/commentaires`, { contenu });
   return response.data.data;
 };
+// Créer un post
+export const creerPost = async (contenu: string, photos_urls: string[] = []) => {
+  const response = await api.post('/posts', { contenu, photos_urls });
+  return response.data.data;
+};
