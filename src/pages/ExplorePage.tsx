@@ -7,60 +7,22 @@ import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import * as utilisatriceService from '../services/utilisatriceService';
 import Sidebar from '../components/Sidebar';
+import type { UtilisatriceListe } from '../services/utilisatriceService';
 
-interface Utilisatrice {
-  id: number;
-  prenom: string;
-  pseudo: string;
-  bio?: string;
-}
-
-// Définition des catégories (correspondance avec les 8 du back)
 const CATEGORIES = [
-  { 
-    id: 1, 
-    nom: 'Advice', 
-    posts: '4.2k posts this week',
-    bg: 'from-peach-200 to-peach-300',
-  },
-  { 
-    id: 2, 
-    nom: 'Friendship', 
-    posts: '2.8k posts this week',
-    bg: 'from-sister-200 to-sister-300',
-  },
-  { 
-    id: 3, 
-    nom: 'Outings', 
-    posts: '1.6k posts this week',
-    bg: 'from-sister-100 to-peach-200',
-  },
-  { 
-    id: 4, 
-    nom: 'Recommend', 
-    posts: '3.1k posts this week',
-    bg: 'from-peach-100 to-sister-200',
-  },
-  { 
-    id: 5, 
-    nom: 'Career', 
-    posts: '912 posts this week',
-    bg: 'from-sister-200 to-peach-200',
-  },
-  { 
-    id: 6, 
-    nom: 'Wellness', 
-    posts: '2.3k posts this week',
-    bg: 'from-peach-200 to-sister-200',
-  },
+  { id: 1, nom: 'Advice', posts: '4.2k posts this week', bg: 'from-peach-200 to-peach-300' },
+  { id: 2, nom: 'Friendship', posts: '2.8k posts this week', bg: 'from-sister-200 to-sister-300' },
+  { id: 3, nom: 'Outings', posts: '1.6k posts this week', bg: 'from-sister-100 to-peach-200' },
+  { id: 4, nom: 'Recommend', posts: '3.1k posts this week', bg: 'from-peach-100 to-sister-200' },
+  { id: 5, nom: 'Career', posts: '912 posts this week', bg: 'from-sister-200 to-peach-200' },
+  { id: 6, nom: 'Wellness', posts: '2.3k posts this week', bg: 'from-peach-200 to-sister-200' },
 ];
 
 export default function ExplorePage() {
   const navigate = useNavigate();
-  const [sisters, setSisters] = useState<Utilisatrice[]>([]);
+  const [sisters, setSisters] = useState<UtilisatriceListe[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Charger les utilisatrices à découvrir
   useEffect(() => {
     chargerSisters();
   }, []);
@@ -76,7 +38,6 @@ export default function ExplorePage() {
     }
   };
 
-  // Helpers
   const initiale = (prenom: string) => prenom?.charAt(0).toUpperCase() || '?';
   
   const getCouleurAvatar = (prenom: string) => {
@@ -93,17 +54,13 @@ export default function ExplorePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-sister-50 via-cream to-sister-100">
       
-      {/* Sidebar gauche */}
       <Sidebar />
 
-      {/* Contenu */}
       <main className="ml-64 px-8 py-6 max-w-6xl">
         
-        {/* Header de page */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Explore</h1>
           
-          {/* Recherche */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={2} />
             <input
@@ -114,7 +71,7 @@ export default function ExplorePage() {
           </div>
         </div>
 
-        {/* ===== Section CATEGORIES ===== */}
+        {/* Categories */}
         <section className="mb-12">
           <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">
             Categories
@@ -127,18 +84,15 @@ export default function ExplorePage() {
                 onClick={() => navigate(`/categorie/${cat.id}`)}
                 className={`relative aspect-[5/3] rounded-3xl bg-gradient-to-br ${cat.bg} p-6 text-left overflow-hidden shadow-sm hover:shadow-lg transition group`}
               >
-                {/* Cercle décoratif en haut à droite (effet maquette) */}
                 <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full bg-white/20"></div>
                 <div className="absolute top-4 right-4 w-16 h-16 rounded-full bg-white/15"></div>
                 
-                {/* Texte */}
                 <div className="relative z-10">
                   <h3 className="text-2xl font-bold text-sister-700 mb-1 group-hover:scale-105 transition origin-left">
                     #{cat.nom}
                   </h3>
                 </div>
                 
-                {/* Posts count en bas */}
                 <div className="absolute bottom-6 left-6 right-6 z-10">
                   <p className="text-xs text-sister-700/70 font-medium">
                     {cat.posts}
@@ -149,7 +103,7 @@ export default function ExplorePage() {
           </div>
         </section>
 
-        {/* ===== Section DISCOVER SISTERS ===== */}
+        {/* Discover Sisters */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -171,20 +125,16 @@ export default function ExplorePage() {
                   key={sister.id}
                   className="bg-white rounded-2xl p-5 text-center shadow-sm border border-sister-100 hover:shadow-md transition"
                 >
-                  {/* Avatar */}
                   <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-br ${getCouleurAvatar(sister.prenom)} flex items-center justify-center text-white font-bold text-xl shadow-md mb-3`}>
                     {initiale(sister.prenom)}
                   </div>
                   
-                  {/* Nom */}
                   <p className="font-semibold text-gray-900 text-sm">{sister.prenom}</p>
                   
-                  {/* Bio courte */}
                   <p className="text-xs text-gray-500 mt-1 mb-3 truncate">
                     {sister.bio || `@${sister.pseudo}`}
                   </p>
 
-                  {/* Bouton Follow */}
                   <button className="w-full bg-gradient-to-r from-sister-400 to-sister-500 hover:from-sister-500 hover:to-sister-600 text-white py-1.5 rounded-full text-xs font-semibold shadow-sm transition">
                     Follow
                   </button>
