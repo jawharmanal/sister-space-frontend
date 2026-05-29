@@ -1,10 +1,20 @@
 // ============================================================================
-// SISTER SPACE — Sidebar gauche (avec icônes Lucide React)
+// SISTER SPACE — Sidebar gauche (avec icônes Lucide React + Paramètres)
 // ============================================================================
 
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Home, Compass, MessageCircle, Plus, User, Shield, MoreHorizontal, LogOut } from 'lucide-react';
+import { 
+  Home, 
+  Compass, 
+  MessageCircle, 
+  Plus, 
+  User, 
+  Shield, 
+  MoreHorizontal, 
+  LogOut, 
+  Settings 
+} from 'lucide-react';
 import * as authService from '../services/authService';
 import * as messageService from '../services/messageService';
 
@@ -36,7 +46,7 @@ export default function Sidebar() {
         const nb = await messageService.compterMessagesNonLus();
         setNbNonLus(nb || 0);
       } catch (e) {
-         // silencieux
+        // silencieux
       }
     };
     charger();
@@ -182,9 +192,19 @@ export default function Sidebar() {
             </button>
           </div>
 
-          {/* Mini menu déconnexion */}
+          {/* Mini menu (Paramètres + Déconnexion) */}
           {menuOuvert && (
             <div className="absolute bottom-full left-3 right-3 mb-2 bg-white rounded-xl shadow-lg border border-sister-100 py-1 z-10">
+              <button
+                onClick={() => { 
+                  setMenuOuvert(false); 
+                  navigate('/parametres'); 
+                }}
+                className="w-full flex items-center gap-2 text-left px-4 py-2 text-sm text-gray-700 hover:bg-sister-50 rounded-lg transition"
+              >
+                <Settings className="w-4 h-4" strokeWidth={2} />
+                <span>Paramètres</span>
+              </button>
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-2 text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition"

@@ -1,14 +1,14 @@
 // ============================================================================
-// SISTER SPACE — Page Paramètres
+// SISTER SPACE — Page Paramètres (refonte 2026)
 // ============================================================================
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { User, Camera, Lock, AlertTriangle, Save, Trash2, Check } from 'lucide-react';
 import * as authService from '../services/authService';
 import * as utilisatriceService from '../services/utilisatriceService';
 import * as uploadService from '../services/uploadService';
-import Avatar from '../components/Avatar';
-import BottomNav from '../components/BottomNav';
+import Sidebar from '../components/Sidebar';
 
 type Onglet = 'infos' | 'photo' | 'motdepasse' | 'suppression';
 
@@ -44,18 +44,18 @@ export default function ParametresPage() {
     return null;
   }
 
-  // ----------------------------------------------------------------------------
+  const initiale = utilisatrice.prenom?.charAt(0).toUpperCase() || '?';
+
   // Reset des messages quand on change d'onglet
-  // ----------------------------------------------------------------------------
   const changerOnglet = (nouvelOnglet: Onglet) => {
     setOnglet(nouvelOnglet);
     setMessageSucces('');
     setMessageErreur('');
   };
 
-  // ----------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   // Enregistrer les infos
-  // ----------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   const handleEnregistrerInfos = async () => {
     setMessageSucces('');
     setMessageErreur('');
@@ -80,10 +80,7 @@ export default function ParametresPage() {
         pseudo,
         bio,
       });
-
-      // Mettre à jour les infos dans le storage local
       authService.mettreAJourUtilisatriceConnectee(utilisatriceModifiee);
-
       setMessageSucces('Tes infos ont été mises à jour ! 🌸');
     } catch (err: any) {
       setMessageErreur(err.response?.data?.message || 'Erreur lors de la mise à jour');
@@ -92,9 +89,9 @@ export default function ParametresPage() {
     }
   };
 
-  // ----------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   // Changer la photo
-  // ----------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   const handleChangerPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const fichier = e.target.files?.[0];
     if (!fichier) return;
@@ -105,27 +102,24 @@ export default function ParametresPage() {
 
     try {
       const url = await uploadService.uploadImage(fichier);
-
       const utilisatriceModifiee = await utilisatriceService.modifierMonProfil({
         photo_url: url,
       });
-
       setPhotoUrl(url);
       authService.mettreAJourUtilisatriceConnectee(utilisatriceModifiee);
-
       setMessageSucces('Photo de profil mise à jour ! 📷✨');
     } catch (err: any) {
-      setMessageErreur(err.response?.data?.message || 'Erreur lors de l\'upload');
+      setMessageErreur(err.response?.data?.message || "Erreur lors de l'upload");
     } finally {
       setUploadEnCours(false);
     }
   };
 
-  // ----------------------------------------------------------------------------
-  // Remettre l'avatar DiceBear (supprime la photo)
-  // ----------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // Retirer la photo
+  // -------------------------------------------------------------------------
   const handleRetirerPhoto = async () => {
-    if (!confirm('Remettre l\'avatar par défaut ?')) return;
+    if (!confirm("Remettre l'avatar par défaut ?")) return;
 
     setEnChargement(true);
     try {
@@ -142,9 +136,9 @@ export default function ParametresPage() {
     }
   };
 
-  // ----------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   // Changer le mot de passe
-  // ----------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   const handleChangerMdp = async () => {
     setMessageSucces('');
     setMessageErreur('');
@@ -167,7 +161,7 @@ export default function ParametresPage() {
       return;
     }
     if (ancienMdp === nouveauMdp) {
-      setMessageErreur('Le nouveau mot de passe doit être différent de l\'ancien');
+      setMessageErreur("Le nouveau mot de passe doit être différent de l'ancien");
       return;
     }
 
@@ -185,9 +179,9 @@ export default function ParametresPage() {
     }
   };
 
-  // ----------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   // Supprimer le compte
-  // ----------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   const handleSupprimerCompte = async () => {
     setMessageSucces('');
     setMessageErreur('');
@@ -214,131 +208,127 @@ export default function ParametresPage() {
     }
   };
 
-  // ============================================================================
-  // RENDER
-  // ============================================================================
+  // -------------------------------------------------------------------------
+  // Liste des onglets (pour boucler proprement)
+  // -------------------------------------------------------------------------
+  const ONGLETS = [
+    { id: 'infos' as const, label: 'Mes infos', Icon: User },
+    { id: 'photo' as const, label: 'Photo', Icon: Camera },
+    { id: 'motdepasse' as const, label: 'Mot de passe', Icon: Lock },
+    { id: 'suppression' as const, label: 'Supprimer', Icon: AlertTriangle },
+  ];
+
   return (
-    <div className="min-h-screen pb-24 bg-gradient-to-b from-pink-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-sister-50 via-cream to-sister-100">
       
-      {/* Header */}
-      <header className="bg-gradient-to-br from-sister-500 to-sister-600 text-white px-4 py-6 sticky top-0 z-10 shadow-md">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-2xl font-bold mb-1">⚙️ Paramètres</h1>
-          <p className="text-sm opacity-90">Gère ton compte Sister Space 🌸</p>
-        </div>
-      </header>
+      <Sidebar />
 
-      {/* Onglets */}
-      <div className="bg-white border-b border-pink-100 sticky top-[88px] z-10 overflow-x-auto">
-        <div className="max-w-3xl mx-auto px-4 flex gap-1 min-w-max">
-          <button
-            onClick={() => changerOnglet('infos')}
-            className={`px-4 py-3 font-medium transition border-b-2 whitespace-nowrap ${
-              onglet === 'infos' ? 'border-sister-500 text-sister-600' : 'border-transparent text-gray-500'
-            }`}
-          >
-            👤 Mes infos
-          </button>
-          <button
-            onClick={() => changerOnglet('photo')}
-            className={`px-4 py-3 font-medium transition border-b-2 whitespace-nowrap ${
-              onglet === 'photo' ? 'border-sister-500 text-sister-600' : 'border-transparent text-gray-500'
-            }`}
-          >
-            📷 Ma photo
-          </button>
-          <button
-            onClick={() => changerOnglet('motdepasse')}
-            className={`px-4 py-3 font-medium transition border-b-2 whitespace-nowrap ${
-              onglet === 'motdepasse' ? 'border-sister-500 text-sister-600' : 'border-transparent text-gray-500'
-            }`}
-          >
-            🔒 Mot de passe
-          </button>
-          <button
-            onClick={() => changerOnglet('suppression')}
-            className={`px-4 py-3 font-medium transition border-b-2 whitespace-nowrap ${
-              onglet === 'suppression' ? 'border-red-500 text-red-600' : 'border-transparent text-gray-500'
-            }`}
-          >
-            ⚠️ Supprimer
-          </button>
+      <main className="ml-64 px-8 py-6 max-w-4xl">
+        
+        {/* Header de page */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">Paramètres</h1>
+          <p className="text-gray-500 text-sm">Gère ton compte Sister Space 🌸</p>
         </div>
-      </div>
 
-      {/* Contenu */}
-      <main className="max-w-3xl mx-auto px-4 pt-6">
+        {/* Onglets */}
+        <div className="bg-white rounded-2xl shadow-sm border border-sister-100 p-2 mb-6 inline-flex gap-1">
+          {ONGLETS.map(({ id, label, Icon }) => {
+            const actif = onglet === id;
+            const danger = id === 'suppression';
+            return (
+              <button
+                key={id}
+                onClick={() => changerOnglet(id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition ${
+                  actif
+                    ? danger
+                      ? 'bg-red-50 text-red-600'
+                      : 'bg-sister-100 text-sister-700'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <Icon className="w-4 h-4" strokeWidth={2} />
+                <span>{label}</span>
+              </button>
+            );
+          })}
+        </div>
 
         {/* Messages */}
         {messageSucces && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm">
-            ✅ {messageSucces}
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm flex items-center gap-2">
+            <Check className="w-4 h-4" strokeWidth={2} />
+            <span>{messageSucces}</span>
           </div>
         )}
         {messageErreur && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">
-            ❌ {messageErreur}
+            ⚠️ {messageErreur}
           </div>
         )}
 
         {/* ============ ONGLET INFOS ============ */}
         {onglet === 'infos' && (
-          <div className="bg-white rounded-2xl shadow-sm p-6 border border-pink-100">
-            <h2 className="text-lg font-semibold text-gray-800 mb-1">👤 Mes informations</h2>
-            <p className="text-sm text-gray-500 mb-5">Modifie ton prénom, pseudo et bio</p>
+          <div className="bg-white rounded-3xl shadow-sm p-8 border border-sister-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-1">Mes informations</h2>
+            <p className="text-sm text-gray-500 mb-6">Modifie ton prénom, pseudo et bio</p>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Email</label>
                 <input
                   type="email"
                   value={utilisatrice.email}
                   disabled
-                  className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-xl text-gray-500 cursor-not-allowed"
+                  className="w-full px-4 py-3 bg-gray-100 border border-transparent rounded-xl text-gray-500 cursor-not-allowed"
                 />
                 <p className="text-xs text-gray-400 mt-1">L'email ne peut pas être modifié</p>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
-                <input
-                  type="text"
-                  value={prenom}
-                  onChange={(e) => setPrenom(e.target.value)}
-                  className="w-full px-3 py-2 border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sister-300"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Prénom *</label>
+                  <input
+                    type="text"
+                    value={prenom}
+                    onChange={(e) => setPrenom(e.target.value)}
+                    className="w-full px-4 py-3 bg-sister-50 border border-transparent rounded-xl focus:outline-none focus:border-sister-300 focus:bg-white transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Pseudo *</label>
+                  <input
+                    type="text"
+                    value={pseudo}
+                    onChange={(e) => setPseudo(e.target.value)}
+                    className="w-full px-4 py-3 bg-sister-50 border border-transparent rounded-xl focus:outline-none focus:border-sister-300 focus:bg-white transition"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Pseudo *</label>
-                <input
-                  type="text"
-                  value={pseudo}
-                  onChange={(e) => setPseudo(e.target.value)}
-                  className="w-full px-3 py-2 border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sister-300"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Bio <span className="text-gray-400 text-xs">({bio.length}/300)</span>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                  Bio <span className="text-gray-400 font-normal normal-case">({bio.length}/300)</span>
                 </label>
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
-                  rows={3}
+                  rows={4}
                   maxLength={300}
-                  className="w-full px-3 py-2 border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sister-300 resize-none"
                   placeholder="Parle un peu de toi..."
+                  className="w-full px-4 py-3 bg-sister-50 border border-transparent rounded-xl focus:outline-none focus:border-sister-300 focus:bg-white transition resize-none"
                 />
               </div>
 
               <button
                 onClick={handleEnregistrerInfos}
                 disabled={enChargement}
-                className="w-full bg-gradient-to-r from-sister-500 to-sister-600 text-white py-3 rounded-full font-medium hover:opacity-90 transition disabled:opacity-50"
+                className="flex items-center gap-2 bg-gradient-to-r from-sister-400 to-sister-500 hover:from-sister-500 hover:to-sister-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg shadow-sister-300/50 disabled:opacity-50 transition"
               >
-                {enChargement ? 'Enregistrement...' : '💾 Enregistrer les modifications'}
+                <Save className="w-4 h-4" strokeWidth={2} />
+                <span>{enChargement ? 'Enregistrement...' : 'Enregistrer les modifications'}</span>
               </button>
             </div>
           </div>
@@ -346,23 +336,26 @@ export default function ParametresPage() {
 
         {/* ============ ONGLET PHOTO ============ */}
         {onglet === 'photo' && (
-          <div className="bg-white rounded-2xl shadow-sm p-6 border border-pink-100">
-            <h2 className="text-lg font-semibold text-gray-800 mb-1">📷 Ma photo de profil</h2>
-            <p className="text-sm text-gray-500 mb-5">Personnalise ton avatar</p>
+          <div className="bg-white rounded-3xl shadow-sm p-8 border border-sister-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-1">Ma photo de profil</h2>
+            <p className="text-sm text-gray-500 mb-6">Personnalise ton avatar</p>
 
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-6 py-6">
               {photoUrl ? (
                 <img
                   src={photoUrl}
                   alt="Avatar"
-                  className="w-32 h-32 rounded-full object-cover border-4 border-pink-100"
+                  className="w-40 h-40 rounded-full object-cover ring-4 ring-sister-100 shadow-lg"
                 />
               ) : (
-                <Avatar prenom={utilisatrice.prenom} taille="xl" />
+                <div className="w-40 h-40 rounded-full bg-gradient-to-br from-sister-300 to-sister-500 flex items-center justify-center text-white text-6xl font-bold ring-4 ring-sister-100 shadow-lg">
+                  {initiale}
+                </div>
               )}
 
-              <label className="cursor-pointer bg-gradient-to-r from-sister-500 to-sister-600 text-white px-6 py-2 rounded-full font-medium hover:opacity-90 transition">
-                {uploadEnCours ? 'Upload en cours...' : '📷 Choisir une photo'}
+              <label className="cursor-pointer flex items-center gap-2 bg-gradient-to-r from-sister-400 to-sister-500 hover:from-sister-500 hover:to-sister-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg shadow-sister-300/50 transition">
+                <Camera className="w-4 h-4" strokeWidth={2} />
+                <span>{uploadEnCours ? 'Upload en cours...' : 'Choisir une photo'}</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -376,7 +369,7 @@ export default function ParametresPage() {
                 <button
                   onClick={handleRetirerPhoto}
                   disabled={enChargement}
-                  className="text-sm text-gray-500 underline hover:text-gray-700"
+                  className="text-sm text-gray-500 underline hover:text-gray-700 transition"
                 >
                   Remettre l'avatar par défaut
                 </button>
@@ -387,48 +380,52 @@ export default function ParametresPage() {
 
         {/* ============ ONGLET MOT DE PASSE ============ */}
         {onglet === 'motdepasse' && (
-          <div className="bg-white rounded-2xl shadow-sm p-6 border border-pink-100">
-            <h2 className="text-lg font-semibold text-gray-800 mb-1">🔒 Changer mon mot de passe</h2>
-            <p className="text-sm text-gray-500 mb-5">Pour ta sécurité, on te demande l'ancien</p>
+          <div className="bg-white rounded-3xl shadow-sm p-8 border border-sister-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-1">Changer mon mot de passe</h2>
+            <p className="text-sm text-gray-500 mb-6">Pour ta sécurité, on te demande l'ancien</p>
 
-            <div className="space-y-4">
+            <div className="space-y-5 max-w-md">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe actuel *</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Mot de passe actuel *</label>
                 <input
                   type="password"
                   value={ancienMdp}
                   onChange={(e) => setAncienMdp(e.target.value)}
-                  className="w-full px-3 py-2 border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sister-300"
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 bg-sister-50 border border-transparent rounded-xl focus:outline-none focus:border-sister-300 focus:bg-white transition"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nouveau mot de passe *</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Nouveau mot de passe *</label>
                 <input
                   type="password"
                   value={nouveauMdp}
                   onChange={(e) => setNouveauMdp(e.target.value)}
-                  className="w-full px-3 py-2 border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sister-300"
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 bg-sister-50 border border-transparent rounded-xl focus:outline-none focus:border-sister-300 focus:bg-white transition"
                 />
                 <p className="text-xs text-gray-400 mt-1">Min 8 caractères, maj/min/chiffre/spécial</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confirmer le nouveau mot de passe *</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Confirmer le nouveau mot de passe *</label>
                 <input
                   type="password"
                   value={confirmMdp}
                   onChange={(e) => setConfirmMdp(e.target.value)}
-                  className="w-full px-3 py-2 border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sister-300"
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 bg-sister-50 border border-transparent rounded-xl focus:outline-none focus:border-sister-300 focus:bg-white transition"
                 />
               </div>
 
               <button
                 onClick={handleChangerMdp}
                 disabled={enChargement}
-                className="w-full bg-gradient-to-r from-sister-500 to-sister-600 text-white py-3 rounded-full font-medium hover:opacity-90 transition disabled:opacity-50"
+                className="flex items-center gap-2 bg-gradient-to-r from-sister-400 to-sister-500 hover:from-sister-500 hover:to-sister-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg shadow-sister-300/50 disabled:opacity-50 transition"
               >
-                {enChargement ? 'Modification...' : '🔒 Changer mon mot de passe'}
+                <Lock className="w-4 h-4" strokeWidth={2} />
+                <span>{enChargement ? 'Modification...' : 'Changer mon mot de passe'}</span>
               </button>
             </div>
           </div>
@@ -436,37 +433,41 @@ export default function ParametresPage() {
 
         {/* ============ ONGLET SUPPRESSION ============ */}
         {onglet === 'suppression' && (
-          <div className="bg-white rounded-2xl shadow-sm p-6 border-2 border-red-200">
-            <h2 className="text-lg font-semibold text-red-600 mb-1">⚠️ Supprimer mon compte</h2>
-            <p className="text-sm text-gray-500 mb-5">
+          <div className="bg-white rounded-3xl shadow-sm p-8 border-2 border-red-200">
+            <h2 className="text-xl font-bold text-red-600 mb-1 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" strokeWidth={2} />
+              Supprimer mon compte
+            </h2>
+            <p className="text-sm text-gray-500 mb-6">
               Cette action est <strong>irréversible</strong>. Tous tes posts, commentaires et messages seront supprimés.
             </p>
 
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-5">
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6">
               <p className="text-sm text-red-700">
                 💔 On est tristes de te voir partir. Si tu as un problème, n'hésite pas à nous contacter avant !
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5 max-w-md">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                   Confirme avec ton mot de passe *
                 </label>
                 <input
                   type="password"
                   value={mdpSuppression}
                   onChange={(e) => setMdpSuppression(e.target.value)}
-                  className="w-full px-3 py-2 border border-red-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300"
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 bg-red-50 border border-red-200 rounded-xl focus:outline-none focus:border-red-400 focus:bg-white transition"
                 />
               </div>
 
-              <label className="flex items-start gap-2 cursor-pointer">
+              <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={confirmationSuppression}
                   onChange={(e) => setConfirmationSuppression(e.target.checked)}
-                  className="mt-1"
+                  className="mt-0.5 w-4 h-4 rounded text-red-500 focus:ring-red-400"
                 />
                 <span className="text-sm text-gray-700">
                   Je comprends que cette action est irréversible et supprimera définitivement mon compte et toutes mes données (droit à l'oubli RGPD).
@@ -476,17 +477,15 @@ export default function ParametresPage() {
               <button
                 onClick={handleSupprimerCompte}
                 disabled={enChargement || !confirmationSuppression}
-                className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-full font-medium transition disabled:opacity-50"
+                className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg shadow-red-300/50 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
-                {enChargement ? 'Suppression...' : '🗑️ Supprimer définitivement mon compte'}
+                <Trash2 className="w-4 h-4" strokeWidth={2} />
+                <span>{enChargement ? 'Suppression...' : 'Supprimer définitivement mon compte'}</span>
               </button>
             </div>
           </div>
         )}
-
       </main>
-
-      <BottomNav />
     </div>
   );
 }
