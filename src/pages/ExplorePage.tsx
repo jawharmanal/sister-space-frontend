@@ -1,147 +1,199 @@
 // ============================================================================
-// SISTER SPACE — Page Exploration
-// Vibe : Glossier / Pinterest pastel
+// SISTER SPACE — Explore Page (refonte 2026)
 // ============================================================================
 
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
-import BottomNav from '../components/BottomNav';
+import * as utilisatriceService from '../services/utilisatriceService';
+import Sidebar from '../components/Sidebar';
 
-// ----------------------------------------------------------------------------
-// TYPES
-// ----------------------------------------------------------------------------
-
-interface Categorie {
+interface Utilisatrice {
   id: number;
-  nom: string;
-  emoji: string;
-  description: string;
-  gradient: string;
+  prenom: string;
+  pseudo: string;
+  bio?: string;
 }
 
-// ----------------------------------------------------------------------------
-// DONNÉES — gradients pastel harmonisés
-// ----------------------------------------------------------------------------
-
-const CATEGORIES: Categorie[] = [
-  { id: 1, nom: 'Restos',    emoji: '🍴', description: 'Bons plans culinaires',     gradient: 'from-rose-200 via-pink-200 to-orange-200' },
-  { id: 2, nom: 'Cinéma',    emoji: '🎬', description: 'Films à découvrir',         gradient: 'from-purple-200 via-pink-200 to-rose-200' },
-  { id: 3, nom: 'Shopping',  emoji: '🛍️', description: 'Pépites mode et déco',      gradient: 'from-pink-200 via-rose-200 to-fuchsia-200' },
-  { id: 4, nom: 'Culture',   emoji: '🎨', description: 'Expos, musées, sorties',    gradient: 'from-amber-200 via-orange-200 to-pink-200' },
-  { id: 5, nom: 'Sport',     emoji: '💪', description: 'Cours, courses, motivation', gradient: 'from-emerald-200 via-teal-200 to-pink-200' },
-  { id: 6, nom: 'Bien-être', emoji: '🌿', description: 'Self-care & mindfulness',   gradient: 'from-teal-200 via-cyan-200 to-pink-200' },
-  { id: 7, nom: 'Musique',   emoji: '🎵', description: 'Concerts, festivals',       gradient: 'from-indigo-200 via-purple-200 to-pink-200' },
-  { id: 8, nom: 'Voyages',   emoji: '✈️', description: 'Destinations & road trips', gradient: 'from-sky-200 via-blue-200 to-pink-200' },
+// Définition des catégories (correspondance avec les 8 du back)
+const CATEGORIES = [
+  { 
+    id: 1, 
+    nom: 'Advice', 
+    posts: '4.2k posts this week',
+    bg: 'from-peach-200 to-peach-300',
+  },
+  { 
+    id: 2, 
+    nom: 'Friendship', 
+    posts: '2.8k posts this week',
+    bg: 'from-sister-200 to-sister-300',
+  },
+  { 
+    id: 3, 
+    nom: 'Outings', 
+    posts: '1.6k posts this week',
+    bg: 'from-sister-100 to-peach-200',
+  },
+  { 
+    id: 4, 
+    nom: 'Recommend', 
+    posts: '3.1k posts this week',
+    bg: 'from-peach-100 to-sister-200',
+  },
+  { 
+    id: 5, 
+    nom: 'Career', 
+    posts: '912 posts this week',
+    bg: 'from-sister-200 to-peach-200',
+  },
+  { 
+    id: 6, 
+    nom: 'Wellness', 
+    posts: '2.3k posts this week',
+    bg: 'from-peach-200 to-sister-200',
+  },
 ];
 
-// ----------------------------------------------------------------------------
-// COMPONENT
-// ----------------------------------------------------------------------------
-
 export default function ExplorePage() {
-  const [recherche, setRecherche] = useState('');
+  const navigate = useNavigate();
+  const [sisters, setSisters] = useState<Utilisatrice[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const categoriesFiltrees = CATEGORIES.filter((c) =>
-    c.nom.toLowerCase().includes(recherche.toLowerCase()) ||
-    c.description.toLowerCase().includes(recherche.toLowerCase())
-  );
+  // Charger les utilisatrices à découvrir
+  useEffect(() => {
+    chargerSisters();
+  }, []);
+
+  const chargerSisters = async () => {
+    try {
+      const data = await utilisatriceService.getUtilisatrices();
+      setSisters((data || []).slice(0, 4));
+    } catch (e) {
+      console.error('Erreur sisters:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helpers
+  const initiale = (prenom: string) => prenom?.charAt(0).toUpperCase() || '?';
+  
+  const getCouleurAvatar = (prenom: string) => {
+    const couleurs = [
+      'from-sister-300 to-sister-500',
+      'from-peach-200 to-peach-300',
+      'from-sister-200 to-sister-400',
+      'from-sister-400 to-sister-600',
+      'from-peach-300 to-sister-400',
+    ];
+    return couleurs[(prenom?.charCodeAt(0) || 0) % couleurs.length];
+  };
 
   return (
-    <div className="min-h-screen pb-28">
+    <div className="min-h-screen bg-gradient-to-br from-sister-50 via-cream to-sister-100">
+      
+      {/* Sidebar gauche */}
+      <Sidebar />
 
-      {/* HEADER */}
-      <header className="glass sticky top-0 z-10 border-b border-sister-100/50">
-        <div className="max-w-2xl mx-auto px-5 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="font-serif text-2xl text-sister-600 italic">
-              Explorer
-            </h1>
-            <span className="text-2xl">🧭</span>
-          </div>
-
-          {/* Barre de recherche */}
+      {/* Contenu */}
+      <main className="ml-64 px-8 py-6 max-w-6xl">
+        
+        {/* Header de page */}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Explore</h1>
+          
+          {/* Recherche */}
           <div className="relative">
-            <Search
-              size={18}
-              strokeWidth={1.75}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-mauve-400 pointer-events-none"
-            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={2} />
             <input
               type="text"
-              value={recherche}
-              onChange={(e) => setRecherche(e.target.value)}
-              placeholder="Rechercher une catégorie..."
-              className="w-full pl-11 pr-4 py-3 bg-white/70 border border-sister-200 rounded-full text-cocoa-900 placeholder-mauve-400 focus:outline-none focus:border-sister-400 focus:ring-4 focus:ring-sister-100 transition-all"
+              placeholder="Search Sister Space"
+              className="pl-10 pr-4 py-2.5 bg-white rounded-full border border-sister-100 focus:outline-none focus:border-sister-300 w-64 text-sm shadow-sm"
             />
           </div>
         </div>
-      </header>
 
-      {/* MAIN CONTENT */}
-      <main className="max-w-2xl mx-auto px-5 pt-6 animate-fade-in-up">
-
-        <p className="text-xs text-mauve-500 mb-4 uppercase tracking-wider font-medium">
-          Découvre par centre d'intérêt
-        </p>
-
-        {/* Aucun résultat */}
-        {categoriesFiltrees.length === 0 && (
-          <div className="card-sister p-8 text-center">
-            <div className="text-4xl mb-2">🔍</div>
-            <p className="text-mauve-500">Aucune catégorie trouvée</p>
+        {/* ===== Section CATEGORIES ===== */}
+        <section className="mb-12">
+          <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">
+            Categories
+          </h2>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => navigate(`/categorie/${cat.id}`)}
+                className={`relative aspect-[5/3] rounded-3xl bg-gradient-to-br ${cat.bg} p-6 text-left overflow-hidden shadow-sm hover:shadow-lg transition group`}
+              >
+                {/* Cercle décoratif en haut à droite (effet maquette) */}
+                <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full bg-white/20"></div>
+                <div className="absolute top-4 right-4 w-16 h-16 rounded-full bg-white/15"></div>
+                
+                {/* Texte */}
+                <div className="relative z-10">
+                  <h3 className="text-2xl font-bold text-sister-700 mb-1 group-hover:scale-105 transition origin-left">
+                    #{cat.nom}
+                  </h3>
+                </div>
+                
+                {/* Posts count en bas */}
+                <div className="absolute bottom-6 left-6 right-6 z-10">
+                  <p className="text-xs text-sister-700/70 font-medium">
+                    {cat.posts}
+                  </p>
+                </div>
+              </button>
+            ))}
           </div>
-        )}
+        </section>
 
-        {/* Grille catégories */}
-        <div className="grid grid-cols-2 gap-3">
-          {categoriesFiltrees.map((cat) => (
-            <Link
-              key={cat.id}
-              to={`/categorie/${cat.id}`}
-              className={`bg-gradient-to-br ${cat.gradient} text-cocoa-900 rounded-3xl p-5 text-left shadow-pink-soft hover:shadow-pink-md hover:-translate-y-1 transition-all duration-300 block group`}
-            >
-              <div className="text-4xl mb-3 group-hover:scale-110 transition-transform inline-block">
-                {cat.emoji}
-              </div>
-              <div className="font-serif text-xl mb-1">{cat.nom}</div>
-              <div className="text-xs text-cocoa-800/80">{cat.description}</div>
-            </Link>
-          ))}
-        </div>
+        {/* ===== Section DISCOVER SISTERS ===== */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Discover Sisters
+            </h2>
+            <button className="text-sm text-sister-500 hover:text-sister-600 font-semibold">
+              See all
+            </button>
+          </div>
 
-        {/* SECTION COMMUNAUTÉ */}
-        <div className="mt-10">
-          <p className="text-xs text-mauve-500 mb-3 uppercase tracking-wider font-medium">
-            La communauté
-          </p>
+          {loading ? (
+            <div className="text-center py-8 text-gray-400">Chargement...</div>
+          ) : sisters.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">Aucune sister à découvrir pour l'instant</div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {sisters.map((sister) => (
+                <div
+                  key={sister.id}
+                  className="bg-white rounded-2xl p-5 text-center shadow-sm border border-sister-100 hover:shadow-md transition"
+                >
+                  {/* Avatar */}
+                  <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-br ${getCouleurAvatar(sister.prenom)} flex items-center justify-center text-white font-bold text-xl shadow-md mb-3`}>
+                    {initiale(sister.prenom)}
+                  </div>
+                  
+                  {/* Nom */}
+                  <p className="font-semibold text-gray-900 text-sm">{sister.prenom}</p>
+                  
+                  {/* Bio courte */}
+                  <p className="text-xs text-gray-500 mt-1 mb-3 truncate">
+                    {sister.bio || `@${sister.pseudo}`}
+                  </p>
 
-          <div className="card-sister p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="text-3xl">🌸</div>
-              <div className="flex-1">
-                <div className="font-serif text-lg text-cocoa-900">
-                  Sister Space grandit !
+                  {/* Bouton Follow */}
+                  <button className="w-full bg-gradient-to-r from-sister-400 to-sister-500 hover:from-sister-500 hover:to-sister-600 text-white py-1.5 rounded-full text-xs font-semibold shadow-sm transition">
+                    Follow
+                  </button>
                 </div>
-                <div className="text-xs text-mauve-500">
-                  Plus de 20 sisters connectées
-                </div>
-              </div>
+              ))}
             </div>
-
-            <Link
-              to="/feed"
-              className="inline-flex items-center gap-1 text-sm text-sister-600 hover:text-sister-700 font-medium transition group"
-            >
-              Voir le fil
-              <span className="group-hover:translate-x-1 transition-transform">→</span>
-            </Link>
-          </div>
-        </div>
-
+          )}
+        </section>
       </main>
-
-      <BottomNav />
     </div>
   );
 }
